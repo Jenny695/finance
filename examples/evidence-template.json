@@ -1,0 +1,64 @@
+{
+  "note": "所有确认项默认false，请实际查看原文后再确认；网址、日期和数值需使用真实数据。可从demo-assessment.json学习完整结构，但不要用于真实结论。",
+  "evidence": {
+    "assets": {
+      "confirmed": false,
+      "source": {
+        "url": "",
+        "title": "",
+        "provider": "",
+        "retrievedAt": ""
+      },
+      "allocations": [
+        {
+          "name": "模拟债券",
+          "weight": 80
+        },
+        {
+          "name": "模拟现金",
+          "weight": 20
+        }
+      ],
+      "lookthroughCoverage": 90
+    },
+    "liquidity": {
+      "confirmed": false,
+      "source": {
+        "url": "",
+        "title": "",
+        "provider": "",
+        "retrievedAt": ""
+      },
+      "lockDays": 90,
+      "settlementDays": 2,
+      "window": "daily"
+    },
+    "issuer": {
+      "confirmed": false,
+      "source": {
+        "url": "",
+        "title": "",
+        "provider": "",
+        "retrievedAt": ""
+      },
+      "license": true,
+      "registration": true,
+      "annualReport": false
+    },
+    "disclosure": {
+      "confirmed": false,
+      "source": {
+        "url": "",
+        "title": "",
+        "provider": "",
+        "retrievedAt": ""
+      },
+      "prospectus": true,
+      "periodicReport": true,
+      "redemptionRules": true,
+      "fees": true,
+      "onTime": false
+    }
+  },
+  "peers": []
+}
