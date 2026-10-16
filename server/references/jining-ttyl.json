@@ -1,0 +1,104 @@
+{
+  "ifindCode": "YH0000434.YH",
+  "name": "济宁银行天天有礼理财产品",
+  "issuer": "济宁银行股份有限公司",
+  "registrationCode": "C1089719000372",
+  "issuerProductCode": "JNYHTTYL",
+  "reportPeriod": "2026年半年度",
+  "asOf": "2026-06-30",
+  "publishedAt": "2026-08-31",
+  "checkedAt": "2026-10-16",
+  "source": {
+    "provider": "济宁银行官网",
+    "url": "https://www.jn-bank.com/jnbank/2026-09/04/article_2026090409415040784.html",
+    "title": "济宁银行天天有礼理财产品2026年半年度报告",
+    "retrievedAt": "2026-10-16T00:00:00Z"
+  },
+  "matchBasis": "产品名称与管理人一致；iFinD内部编码与官方登记编码的映射需用户确认",
+  "facts": {
+    "type": "fixed",
+    "typeLabel": "开放式固收类（报告原文）",
+    "riskLabel": "中低风险（报告原文，未自动映射R等级）",
+    "term": "无固定期限",
+    "establishedAt": "2019-10-22",
+    "manager": "济宁银行股份有限公司",
+    "custodian": "宁波银行股份有限公司",
+    "assetsAtPeriodEnd": 660703001.68,
+    "reportedUnitNav": 1.0,
+    "reportedCumulativeNav": 1.0,
+    "assetValuationCurrency": "人民币",
+    "benchmark": null,
+    "reportedAssetValuationWan": 66114.49
+  },
+  "allocations": [
+    {
+      "name": "债券",
+      "weight": 15.07
+    },
+    {
+      "name": "存款",
+      "weight": 84.93
+    }
+  ],
+  "holdings": [
+    {
+      "name": "现金",
+      "weight": 84.98,
+      "valuationWan": 56148.33
+    },
+    {
+      "name": "25中国银行CD040",
+      "weight": 7.56,
+      "valuationWan": 4996.97
+    },
+    {
+      "name": "25光大银行CD242",
+      "weight": 7.52,
+      "valuationWan": 4969.19
+    }
+  ],
+  "limits": [
+    "这是2026-06-30的历史报告，不代表当前资产配置；未声称已穷尽更新报告。",
+    "资产组合比例按组合口径；明细比例按净资产口径，三项合计100.06%，不将其强制归一化或与组合比例混算。",
+    "已列明细估值合计66114.49万元，与资产组合估值合计一致；这一材料覆盖不代表完整信用穿透。",
+    "报表单位净值和累计净值均为1，仍不能还原实际收益分配；产品规模变化不是投资收益。",
+    "报告未给出完整赎回、费用、分红与收益率序列，未据此补造。",
+    "官网路径日期与正文发布时间不同，发布时间按正文记录。"
+  ],
+  "previousReports": [
+    {
+      "asOf": "2025-12-31",
+      "publishedAt": "2026-01-16",
+      "source": {
+        "provider": "济宁银行官网",
+        "url": "https://www.jn-bank.com/jnbank/2026-01/28/article_2026012814340627628.html",
+        "title": "济宁银行天天有礼理财产品2025年第4季度报告",
+        "retrievedAt": "2026-10-16T00:00:00Z"
+      },
+      "allocations": [
+        {
+          "name": "债券",
+          "weight": 50.19
+        },
+        {
+          "name": "存款",
+          "weight": 49.81
+        }
+      ],
+      "facts": {
+        "type": "fixed",
+        "typeLabel": "开放式固收类（报告原文）",
+        "riskLabel": "中低风险（报告原文，未自动映射R等级）",
+        "term": "无固定期限",
+        "establishedAt": "2019-10-22",
+        "manager": "济宁银行股份有限公司",
+        "custodian": "宁波银行股份有限公司",
+        "assetsAtPeriodEnd": 994287958.03,
+        "reportedUnitNav": 1.0,
+        "reportedCumulativeNav": 1.0,
+        "assetValuationCurrency": "人民币",
+        "benchmark": null
+      }
+    }
+  ]
+}

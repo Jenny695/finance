@@ -15,6 +15,7 @@ export async function apiMiddleware(req,res,next){
   if(!['localhost','127.0.0.1','[::1]'].includes(host))throw new ConnectorError('真实数据连接器仅供本机单用户使用',403);
   const origin=req.headers.origin;
   if(origin&&new URL(origin).host!==req.headers.host)throw new ConnectorError('不允许跨站请求',403);
+  if(req.method==='GET'&&req.url.startsWith('/api/products/reference?')){const code=new URL(req.url,'http://localhost').searchParams.get('code');return json(res,200,await productService.reference(code))}
   if(req.method==='GET'&&req.url.startsWith('/api/products?')){const params=Object.fromEntries(new URL(req.url,'http://localhost').searchParams);return json(res,200,await productService.catalog(params))}
   if(req.method==='GET'&&req.url==='/api/products')return json(res,200,await productService.catalog());
   if(req.method==='GET'&&req.url==='/api/connection')return json(res,200,await productService.status());
@@ -24,6 +25,8 @@ export async function apiMiddleware(req,res,next){
   const input=await body(req);
   if(req.url==='/api/products/import'){try{return json(res,200,await productService.importCatalog(input.products))}catch(e){if(e instanceof ConnectorError)throw e;throw new ConnectorError(e.message)}}
   if(req.url==='/api/templates'){try{return json(res,200,await productService.saveTemplate(input))}catch(e){if(e instanceof ConnectorError)throw e;throw new ConnectorError(e.message)}}
+  if(req.url==='/api/products/references/search')return json(res,200,await productService.searchReferences(input));
+  if(req.url==='/api/products/references/confirm')return json(res,200,await productService.confirmReference(input));
   if(req.url==='/api/products/query')return json(res,200,await productService.detail(input));
   if(req.url==='/api/ifind/query')return json(res,200,await queryIFind(input));
   if(req.url==='/api/public/disclosure')return json(res,200,await readDisclosure(input.url));
