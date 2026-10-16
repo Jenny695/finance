@@ -5,3 +5,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Private local product metadata and query templates (never credentials)
+.local/

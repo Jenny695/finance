@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {parseOfficialDS} from '../lib/template-import.js';
+test('安全解析实际官方银行理财请求函数',()=>{const r=parseOfficialDS("#日期序列\nTHS_DS('YH0000434.YH','ths_unit_nv_fund','','block:latest','2026-09-16','2026-10-16')");assert.equal(r.code,'YH0000434.YH');assert.equal(r.field,'ths_unit_nv_fund');assert.deepEqual(r.payload.indipara[0].indiparams,['']);assert.equal(r.payload.functionpara.Fill,'Blank')});
+test('不执行表达式、不接收登录函数或多条语句',()=>{for(const text of ["THS_DS(process.exit(),'', '', '', '', '')","THS_DS('a','b','','','','');alert(1)","THS_iFinDLogin('user','pass')","THS_DS('a','b','c')"])assert.throws(()=>parseOfficialDS(text))});
