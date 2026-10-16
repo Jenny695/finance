@@ -1,4 +1,8 @@
+import {extraIndicators,BANK_DRAWDOWN_FIELD} from '../lib/official-indicators.js';
 // 来自用户在官方超级命令实际生成的银行理财单位净值函数，未声称已在云端获得授权查询结果。
 // THS_DS('YH0000434.YH','ths_unit_nv_fund','','block:latest','2026-09-16','2026-10-16')
 export const bankTemplate={category:'bank',endpoint:'date_sequence',payload:{codes:'{{code}}',startdate:'{{start}}',enddate:'{{end}}',functionpara:{block:'latest',Fill:'Blank'},indipara:[{indicator:'ths_unit_nv_fund',indiparams:['']}]},field:'ths_unit_nv_fund',navBasis:'unit',feeBasis:'net',periodsPerYear:252,distributions:'unknown',confirmed:true,currency:null,updatedAt:'2026-10-16T00:00:00Z',verification:'依据用户官方超级命令生成的单位净值字段预置，理财数据权限待在本机实查；费用和分红须核对',basisConfirmed:false};
+// 新增字段来自用户再次提供的双指标官方THS_DS函数；空参数独立对应每个字段。
+bankTemplate.payload.indipara.push({indicator:BANK_DRAWDOWN_FIELD,indiparams:['']});
+bankTemplate.officialIndicators=extraIndicators(bankTemplate.payload,bankTemplate.field);
 export const initialCatalog=[{code:'YH0000434.YH',name:'济宁银行·天天有礼（名称待核对）',category:'bank',issuer:'济宁银行',type:null,riskLevel:null,currency:null,source:null,metadataStatus:'名称来自截图，分类、风险及币种待原文核对'}];
