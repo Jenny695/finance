@@ -1,3 +1,4 @@
+import {indicatorService} from './indicator-service.js';
 import { productService } from './product-service.js';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -6,7 +7,7 @@ const envFile=fileURLToPath(new URL('../.env',import.meta.url));
 if(existsSync(envFile))process.loadEnvFile(envFile);
 function json(res,status,data){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data))}
 async function body(req){let content='';for await(const chunk of req){content+=chunk;if(Buffer.byteLength(content)>2_000_000)throw new ConnectorError('请求过大',413)}try{return JSON.parse(content)}catch{throw new ConnectorError('请求必须是有效 JSON')}}
-export function createApiMiddleware(service=productService){return async function apiMiddleware(req,res,next){
+export function createApiMiddleware(service=productService,indicators=indicatorService){return async function apiMiddleware(req,res,next){
  if(!req.url?.startsWith('/api/'))return next();
  try{
   const address=req.socket.remoteAddress;
@@ -19,11 +20,14 @@ export function createApiMiddleware(service=productService){return async functio
   if(req.method==='GET'&&req.url.startsWith('/api/products?')){const params=Object.fromEntries(new URL(req.url,'http://localhost').searchParams);return json(res,200,await service.catalog(params))}
   if(req.method==='GET'&&req.url==='/api/products')return json(res,200,await service.catalog());
   if(req.method==='GET'&&req.url==='/api/connection')return json(res,200,await service.status());
+  if(req.method==='GET'&&req.url==='/api/indicators/plan')return json(res,200,indicators.status());
+  if(req.method==='GET'&&req.url==='/api/indicators/history')return json(res,200,indicators.history());
   if(req.method==='GET'&&req.url==='/api/database')return json(res,200,await service.databaseStatus());
   if(req.method==='GET'&&req.url==='/api/status')return json(res,200,{mode:'local-single-user',ifind:{configured:!!(process.env.IFIND_ACCESS_TOKEN||process.env.IFIND_REFRESH_TOKEN),permissionVerified:false,connectionVerified:false,auth:'官方 HTTP API Token；不接收客户端账号密码',notice:'配置存在不代表授权有效；需执行一次成功查询。接口结构待用官方生成器及实际授权响应核验。'},publicSources:{hosts:['www.chinawealth.com.cn','www.51ifind.com',...(process.env.PUBLIC_SOURCE_HOSTS||'').split(',').filter(Boolean)],mode:'单篇原文读取，遵守 robots；不递归爬取'},credentialsExposed:false});
   if(req.method!=='POST')throw new ConnectorError('接口不存在或请求方法不支持',404);
   if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ConnectorError('只接受 application/json',415);
   const input=await body(req);
+  if(req.url==='/api/indicators/probe')return json(res,200,await indicators.probe(input));
   if(req.url==='/api/templates/bank-risk')return json(res,200,await service.enableBankRisk(input));
   if(req.url==='/api/database/snapshot')return json(res,200,await service.storedDetail(input));
   if(req.url==='/api/database/sync/plan')return json(res,200,await service.syncPlan(input));
