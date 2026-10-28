@@ -225,3 +225,5 @@ THS_DS('YH0000434.YH','ths_unit_nv_fund;ths_max_retrace_rate_all_fund',';','bloc
 离线目录包：把已转换的UTF-8 `code,name` CSV及SHA-256/行数清单放到`.local/imports/`，运行`node scripts/import-catalog-bundle.js`或双击`import-catalog.cmd`。脚本在任何写入前检查全部文件、产品、重复代码和条数；先用SQLite一致性快照备份原数据库，保留已有机构/风险/资产分类/币种/来源等非空资料，再每1000条导入，失败保留已提交批次。无Token、无上游请求、未知资产分类和风险留空。不要将上传目录、清单或数据库提交Git。`.local/imports/manifest.json`为version=1、total及files数组（file/category/rows/sha256），类别不明时使用other，不能仅凭.OF后缀判断为公募基金。
 
 Windows可双击`start-finance.cmd`：检查Node>=22.12，缺依赖时安装；若存在上述目录包，首次自动导入，后续清单相同且数据库仍在时保留原库直接启动并打开浏览器。启动窗口需保持开启。手动需要重导时使用`import-catalog.cmd`。私有目录仅随用户自己的本地包提供，不在GitHub源码中；GitHub源码下载不等于获得此前上传数据。
+
+目录整包替换支持可选`removeProducts`（完整code/name/category清单，上限10000）：不得与新目录代码重叠。全部新目录成功导入后，事务内按旧名称和类别核对并删除指定的旧目录记录；不清空整个类别，不删除历史净值、指标或报告。旧记录被用户修改时拒绝删除并回滚本次删除事务，已完成导入批次保留。导入前仍做一致性备份；再次运行时已不存在的旧代码不重复删除。

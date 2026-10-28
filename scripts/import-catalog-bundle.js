@@ -1,7 +1,7 @@
 // 本机离线导入；不读取Token、不调用iFinD，上传目录与数据库都保留在.local内。
 import {createReadStream} from 'node:fs';
 import {readFile,writeFile,mkdir,access} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
+import {createHash,randomUUID} from 'node:crypto';
 import {resolve,dirname,basename} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {DatabaseSync} from 'node:sqlite';
@@ -23,6 +23,9 @@ export async function importCatalogBundle({folder=resolve(project,'.local'),onPr
   if(n!==item.rows)throw Error(item.file+'行数与清单不一致');total+=n;
  }
  if(total!==manifest.total)throw Error('目录总条数与清单不一致');
+ const removals=manifest.removeProducts??[];
+ if(!Array.isArray(removals)||removals.length>10000)throw Error('替换目录删除清单无效');
+ const removalCodes=new Set();for(const record of removals){productRecord(record);if(codes.has(record.code)||removalCodes.has(record.code))throw Error('删除清单与新目录冲突或重复');removalCodes.add(record.code)}
  let backup=null;const database=resolve(folder,'finance.sqlite');let exists=true;try{await access(database)}catch(error){if(error.code!=='ENOENT')throw error;exists=false}
  if(exists){await mkdir(resolve(folder,'backups'),{recursive:true});backup=resolve(folder,'backups','before-catalog-'+new Date().toISOString().replace(/[:.]/g,'-')+'.sqlite');const db=new DatabaseSync(database,{readOnly:true});try{db.exec("VACUUM INTO '"+backup.replaceAll("'","''")+"'")}finally{db.close()}}
  const service=createProductService({folder});let imported=0;
@@ -30,7 +33,9 @@ export async function importCatalogBundle({folder=resolve(project,'.local'),onPr
  const previousProduct=previous?.prepare('SELECT data FROM products WHERE code=?');
  try{
   for(const item of manifest.files){const path=resolve(input,item.file);if(await hash(path)!==item.sha256)throw Error('文件在检查后发生改变，后续导入停止');let batch=[];const flush=async()=>{if(!batch.length)return;await service.importCatalog(batch);imported+=batch.length;batch=[]};for await(const record of records(path,item.category)){const old=previousProduct?.get(record.code);if(old){const known=JSON.parse(old.data);for(const key of ['issuer','type','riskLevel','currency','source'])if(known[key])record[key]=known[key];if(record.category==='other'&&known.category!=='other')record.category=known.category}batch.push(record);if(batch.length===1000)await flush()}await flush();onProgress({file:item.file,rows:item.rows,imported,total})}
-  return {imported,totalProducts:(await service.status()).products,backup,networkRequests:0};
+  let removed=0;
+  if(removals.length){const writer=new DatabaseSync(database);try{writer.exec('PRAGMA busy_timeout=5000; BEGIN IMMEDIATE');const lookup=writer.prepare('SELECT name,category FROM products WHERE code=?'),del=writer.prepare('DELETE FROM products WHERE code=?');for(const record of removals){const existing=lookup.get(record.code);if(!existing)continue;if(existing.name!==record.name||existing.category!==record.category)throw Error('旧目录产品已被修改，停止删除：'+record.code);removed+=Number(del.run(record.code).changes)}writer.prepare('INSERT OR REPLACE INTO settings VALUES(?,?)').run('catalog_revision',randomUUID());writer.exec('COMMIT')}catch(error){writer.exec('ROLLBACK');throw error}finally{writer.close()}}
+  return {imported,removed,totalProducts:(await service.status()).products,backup,networkRequests:0};
  }catch(error){throw Error(`已提交${imported}条；已提交批次保留，可修正后重导：${error.message}`)}finally{previous?.close();service.close()}
 }
 async function main(){
