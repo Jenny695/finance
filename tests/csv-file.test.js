@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {inspectCSVFile,detectCSVDelimiter} from '../lib/csv-file.js';
+import {streamCSV} from '../lib/stream-csv.js';
+const gbk=Buffer.from('b4fac2eb2cc3fbb3c60a4142432e4f462cb2e2cad4bbf9bdf0','hex');
+async function rows(bytes,format){async function* chunks(){for(let i=0;i<bytes.length;i++)yield bytes.subarray(i,i+1)}const out=[];for await(const row of streamCSV(chunks(),format))out.push(row);return out}
+test('UTF8与GBK自动识别，单字节分块仍保留中文',async()=>{for(const bytes of [Buffer.from('代码,名称\nABC.OF,测试基金'),gbk]){const format=await inspectCSVFile(new File([bytes],'目录.csv'));assert.deepEqual(await rows(bytes,format),[['代码','名称'],['ABC.OF','测试基金']])}});
+test('ASCII表头之后超过64KB才出现GBK中文，写库前全文件校验仍正确识别',async()=>{const bytes=Buffer.concat([Buffer.from('code,name\n'+'ASCII.OF,Sample\n'.repeat(5000)),gbk.subarray(gbk.indexOf(10)+1)]);assert.equal((await inspectCSVFile(new File([bytes],'late.csv'))).encoding,'gb18030')});
+test('UTF16双字节序及BOM/无BOM制表文本自动识别',async()=>{for(const be of [false,true])for(const bom of [false,true]){let bytes=Buffer.from('code\tname\nABC.OF\t测试基金','utf16le');if(be)bytes.swap16();if(bom)bytes=Buffer.concat([Buffer.from(be?[254,255]:[255,254]),bytes]);const format=await inspectCSVFile(new File([bytes],'目录.txt'));assert.equal(format.encoding,be?'utf-16be':'utf-16le');assert.equal(format.delimiter,'\t');assert.deepEqual(await rows(bytes,format),[['code','name'],['ABC.OF','测试基金']])}});
+test('手动错误编码与不完整字节以中文报错，不用替代字符吞掉错误',async()=>{await assert.rejects(()=>inspectCSVFile(new File([gbk],'wrong.csv'),{encoding:'utf-8'}),/编码不匹配/);await assert.rejects(()=>inspectCSVFile(new File([Buffer.from([255,254,65,0])],'bom.csv'),{encoding:'utf-8'}),/标记为/);await assert.rejects(()=>inspectCSVFile(new File([new Uint8Array([255])],'bad.csv')),/无法按/);await assert.rejects(()=>rows(new Uint8Array([65,44,66,10,0xe4]),{encoding:'utf-8'}),/编码不匹配/)});
+test('二进制Excel/压缩包和HTML伪装CSV提供实际另存提示',async()=>{for(const bytes of [Buffer.from([0x50,0x4b,3,4]),Buffer.from([0xd0,0xcf,0x11,0xe0]),Buffer.from('<html><table></table></html>')])await assert.rejects(()=>inspectCSVFile(new File([bytes],'pretend.csv')),/另存为/)});
+test('识别分号和制表符时忽略引号内分隔符，保留换行与转义',async()=>{const text='"code,证券";name\r\nABC.OF;"基金;甲\n乙"\r\n';assert.equal(detectCSVDelimiter(text),';');const bytes=Buffer.from(text),format=await inspectCSVFile(new File([bytes],'semicolon.csv'));assert.deepEqual(await rows(bytes,format),[['code,证券','name'],['ABC.OF','基金;甲\n乙']])});
