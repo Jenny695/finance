@@ -221,3 +221,7 @@ THS_DS('YH0000434.YH','ths_unit_nv_fund;ths_max_retrace_rate_all_fund',';','bloc
 真实登录、银行/券商个人持仓、交易、全自动披露证据采集和公网多用户服务尚未实现。公开数据再分发需确认来源授权。**不构成任何投资建议，过往业绩不预示未来表现，投资有风险。**
 
 目录导入若提示编码不匹配：先用Excel打开原文件，选择“文件 → 另存为 → CSV UTF-8（逗号分隔）”，再在网页重新选择。批量入口可手动切换文件编码，并确认中文列名正常。XLS/XLSX、ZIP和HTML/XML表格不作为CSV解析，不能只修改后缀。自动识别不能保证区分所有兼容编码，有乱码应手选编码或重新导出；不会用替代字符强行写入。目录导入不调用iFinD，也不等于已经同步净值。
+
+离线目录包：把已转换的UTF-8 `code,name` CSV及SHA-256/行数清单放到`.local/imports/`，运行`node scripts/import-catalog-bundle.js`或双击`import-catalog.cmd`。脚本在任何写入前检查全部文件、产品、重复代码和条数；先用SQLite一致性快照备份原数据库，保留已有机构/风险/资产分类/币种/来源等非空资料，再每1000条导入，失败保留已提交批次。无Token、无上游请求、未知资产分类和风险留空。不要将上传目录、清单或数据库提交Git。`.local/imports/manifest.json`为version=1、total及files数组（file/category/rows/sha256），类别不明时使用other，不能仅凭.OF后缀判断为公募基金。
+
+Windows可双击`start-finance.cmd`：检查Node>=22.12，缺依赖时安装；若存在上述目录包，首次自动导入，后续清单相同且数据库仍在时保留原库直接启动并打开浏览器。启动窗口需保持开启。手动需要重导时使用`import-catalog.cmd`。私有目录仅随用户自己的本地包提供，不在GitHub源码中；GitHub源码下载不等于获得此前上传数据。
