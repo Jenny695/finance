@@ -8,3 +8,7 @@ dist/
 
 # Private local product metadata and query templates (never credentials)
 .local/
+
+# User's original exported catalogs; keep only the placement instructions
+import-files/*
+!import-files/放置目录文件说明.txt
