@@ -10,6 +10,12 @@ export function referenceFor(code,{confirmed=false,now=new Date().toISOString().
  const totalValue=value.facts.reportedAssetValuationWan;const coveredValue=value.holdings.reduce((s,h)=>s+(h.valuationWan||0),0);const coverageByValue=totalValue>0?Math.round(coveredValue/totalValue*10000)/100:null;
  return {...value,identityConfirmed:confirmed,status:confirmed?'用户已确认编码映射':'同名同管理人官方资料，编码映射待确认',ageDays:Math.max(0,Math.floor((Date.parse(now)-Date.parse(value.asOf))/86400000)),derived:{disclosedTop10,coverageByValue,top1:value.holdings[0].weight,assetHHI:Number(value.allocations.reduce((s,a)=>s+(a.weight/100)**2,0).toFixed(6)),assetHHINote:'只衡量报告中资产大类集中度，不是发行人或信用风险集中度'},evidence:confirmed?{assets:{confirmed:true,source:value.source,allocations:value.allocations,lookthroughCoverage:coverageByValue,coverageBasis:'已披露明细估值合计/报告资产组合估值合计，不代表信用穿透；与占净资产比例求和分开'}}:{}};
 }
+// 官网报告按自身登记编码匹配，不替用户确认iFinD内部编码映射。
+export function curatedPublicBundle(now=new Date().toISOString().slice(0,10)){
+ const ref=referenceFor(snapshot.ifindCode,{confirmed:true,now});
+ const candidateIFindCode=ref.ifindCode;delete ref.ifindCode;
+ return {...ref,identityBasis:'官网报告登记编码与当前公开产品一致；未关联同花顺内部代码',status:'官网登记编码对应的历史披露',candidateIFindCode:{code:candidateIFindCode,confirmed:false,basis:snapshot.matchBasis}};
+}
 export function relevantResult(result,product){const text=clean(result.title+' '+result.snippet).replace(/\s/g,'');const registration=String(product.registrationCode||'');const core=String(product.name||'').replace(/（[^）]*）|\([^)]*\)/g,'').replace(product.issuer||'','').replace(/[·•\s]/g,'').replace(/理财产品|股份有限公司|银行/g,'');const issuer=String(product.issuer||'').replace(/股份有限公司/g,'');if(registration&&text.includes(registration))return true;return core.length>=3&&text.includes(core)&&issuer.length>=2&&text.includes(issuer)}
 export function parseSearchHTML(html,engine='baidu'){
  if(/百度安全验证|请完成下方验证|验证码验证|captcha-container|b_captcha/i.test(html))throw Error('搜索站点要求验证，未绕过');

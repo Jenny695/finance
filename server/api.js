@@ -1,3 +1,4 @@
+import {publicLibrary} from './public-library.js';
 import {indicatorService} from './indicator-service.js';
 import { productService } from './product-service.js';
 import { existsSync } from 'node:fs';
@@ -7,7 +8,7 @@ const envFile=fileURLToPath(new URL('../.env',import.meta.url));
 if(existsSync(envFile))process.loadEnvFile(envFile);
 function json(res,status,data){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data))}
 async function body(req){let content='';for await(const chunk of req){content+=chunk;if(Buffer.byteLength(content)>2_000_000)throw new ConnectorError('请求过大',413)}try{return JSON.parse(content)}catch{throw new ConnectorError('请求必须是有效 JSON')}}
-export function createApiMiddleware(service=productService,indicators=indicatorService){return async function apiMiddleware(req,res,next){
+export function createApiMiddleware(service=productService,indicators=indicatorService,publicData=publicLibrary){return async function apiMiddleware(req,res,next){
  if(!req.url?.startsWith('/api/'))return next();
  try{
   const address=req.socket.remoteAddress;
@@ -16,6 +17,9 @@ export function createApiMiddleware(service=productService,indicators=indicatorS
   if(!['localhost','127.0.0.1','[::1]'].includes(host))throw new ConnectorError('真实数据连接器仅供本机单用户使用',403);
   const origin=req.headers.origin;
   if(origin&&new URL(origin).host!==req.headers.host)throw new ConnectorError('不允许跨站请求',403);
+  if(req.method==='GET'&&req.url.startsWith('/api/public-library?'))return json(res,200,publicData.catalog(Object.fromEntries(new URL(req.url,'http://localhost').searchParams)));
+  if(req.method==='GET'&&req.url==='/api/public-library')return json(res,200,publicData.catalog());
+  if(req.method==='GET'&&req.url.startsWith('/api/public-library/detail?'))return json(res,200,publicData.detail(new URL(req.url,'http://localhost').searchParams.get('code')));
   if(req.method==='GET'&&req.url.startsWith('/api/products/reference?')){const code=new URL(req.url,'http://localhost').searchParams.get('code');return json(res,200,await service.reference(code))}
   if(req.method==='GET'&&req.url.startsWith('/api/products?')){const params=Object.fromEntries(new URL(req.url,'http://localhost').searchParams);return json(res,200,await service.catalog(params))}
   if(req.method==='GET'&&req.url==='/api/products')return json(res,200,await service.catalog());
