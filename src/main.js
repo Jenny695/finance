@@ -20,7 +20,7 @@ function authPage(register=false){document.getElementById('app').innerHTML=`<mai
 }
 function render(){cleanup?.();cleanup=null;const path=route(),parsed=new URL(path,'http://internal'),base=parsed.pathname;if(!ready){document.getElementById('app').innerHTML='<div class="app-loading">正在加载知衡…</div>';return}if(base==='/privacy'||base==='/terms'){document.getElementById('app').innerHTML=`<main class="policy-shell">${logo()}${policyPage(base.slice(1))}</main>`;return}if(!viewer()){if(!['/login','/register'].includes(base)){pending=path;location.hash='/login';return}authPage(base==='/register');return}if(['/login','/register'].includes(base)){location.replace('#/');return}
  if(base==='/'){shell(investorHome(),'/');cleanup=mountHome()}
- else if(base==='/analysis'||base.startsWith('/analysis/')){let code='';try{code=base.startsWith('/analysis/')?decodeURIComponent(base.slice(10)):''}catch{}shell(classifiedContent(code,parsed.searchParams.get('category')||'bank'),'/analysis');cleanup=mountClassified();const search=parsed.searchParams.get('search');if(search){document.getElementById('ca-product-search').value=search;document.getElementById('ca-search-products').click()}}
+ else if(base==='/analysis'||base.startsWith('/analysis/')){let code='';try{code=base.startsWith('/analysis/')?decodeURIComponent(base.slice(10)):''}catch{}code=(code||parsed.searchParams.get('search')||'').trim().toUpperCase();shell(classifiedContent(code,parsed.searchParams.get('category')||''),'/analysis');cleanup=mountClassified();}
  else if(base==='/compare'){shell(comparisonContent(),'/compare');cleanup=mountComparison()}
  else if(base==='/knowledge'){shell(knowledgePage(),'/knowledge')}
  else if(base==='/methodology'){shell(methodologyContent(),'/knowledge')}
