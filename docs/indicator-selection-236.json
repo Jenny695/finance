@@ -1,0 +1,2306 @@
+{
+  "receivedFields": 236,
+  "selectedFromThisFunction": 21,
+  "carriedFromPrevious": [
+    "ths_sharp_annual_fund",
+    "ths_sortino_annul_fund",
+    "ths_calmar_ratio_fund"
+  ],
+  "activeFields": 24,
+  "note": "仅字段定义与筛选理由，不含用户原始返回值。没有返回样本的字段不宣称可用。",
+  "rows": [
+    {
+      "field": "ths_manage_fee_rate_fund",
+      "label": "管理费率",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_mandate_fee_rate_fund",
+      "label": "托管费率",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_sales_service_fee_fund",
+      "label": "销售服务费率",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_purchasefee_fund",
+      "label": "认购费率",
+      "parameters": [
+        "101"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_subscriptionfee_fund",
+      "label": "申购费率",
+      "parameters": [
+        "101"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_redemptionfee_fund",
+      "label": "赎回费率",
+      "parameters": [
+        "101"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_volatile_human_fund",
+      "label": "基金经理指数收益标准差",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_ann_vol_human_fund",
+      "label": "基金经理指数年化波动率",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_jjjlzsnhbdltlpj_fund",
+      "label": "基金经理指数年化波动率同类平均",
+      "parameters": [
+        "1",
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_maxdrawdown_human_fund",
+      "label": "基金经理指数最大回撤",
+      "parameters": [
+        "1",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_jjjlzszdhctlpj_fund",
+      "label": "基金经理指数最大回撤同类平均",
+      "parameters": [
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_sharpe_human_fund",
+      "label": "Sharpe(基金经理指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_spjjjlzstlpj_fund",
+      "label": "Sharpe(基金经理指数)同类平均",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_alpha_human_fund",
+      "label": "Alpha(基金经理指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_treynor_human_fund",
+      "label": "Treynor(基金经理指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_beta_human_fund",
+      "label": "Beta(基金经理指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_ir_human_fund",
+      "label": "信息比率(基金经理指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_sec_sel_human_fund",
+      "label": "选股能力(基金经理指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_time_sel_human_fund",
+      "label": "择时能力（基金经理指数）",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_qjsl_human_fund",
+      "label": "区间胜率（基金经理指数）",
+      "parameters": [
+        "1",
+        "101",
+        "000001.SH",
+        "100",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：基金经理指数，不代表当前产品"
+    },
+    {
+      "field": "ths_fund_shares_fund",
+      "label": "基金份额",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_fund_shares_chg_fund",
+      "label": "基金份额变化",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_fund_shares_chg_rate_fund",
+      "label": "基金份额变化率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_first_nv_date_fund",
+      "label": "净值披露首日",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_unit_nv_fund",
+      "label": "单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_adjustment_nv_fund",
+      "label": "复权单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_adjustment_factor_fund",
+      "label": "基金净值复权因子",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_accum_unit_nv_fund",
+      "label": "累计单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_jjjsnjzcxgdcs_fund",
+      "label": "基金近3年净值创新高的次数",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_jjwnjzcxgdcs_fund",
+      "label": "基金近5年净值创新高的次数",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_unit_nv_grow_fund",
+      "label": "单位净值增长",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_adjustment_nvg_fund",
+      "label": "复权单位净值增长",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_accum_unit_nv_grow_fund",
+      "label": "累计单位净值增长",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_unit_nvg_rate_fund",
+      "label": "单位净值增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_unit_nvg_fund",
+      "label": "区间单位净值增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_adjustment_nvg_rate_fund",
+      "label": "日收益率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_adjustment_nvg_ratio_fund",
+      "label": "区间复权单位净值增长率",
+      "parameters": [
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_accum_unitnvg_rate_fund",
+      "label": "累计单位净值增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_accum_unitnvg_fund",
+      "label": "区间累计单位净值增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_adjustment_nvg_to_mkt_fund",
+      "label": "复权单位净值相对大盘增长率",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_cash_dividendnvg_fund",
+      "label": "现金分红净值增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_adjust_unit_nvg_since_founded_fund",
+      "label": "自成立日起复权单位净值增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_intervalbenchmarkgrowthrate_fund",
+      "label": "区间业绩基准增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_intervaloverbenchmarkgrowthrate_fund",
+      "label": "区间净值超越基准增长率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_interval_nv_over_by_frequency_fund",
+      "label": "区间净值超越基准收益频率",
+      "parameters": [
+        "2026"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_interval_nv_over_by_percent_fund",
+      "label": "区间净值超越基准收益频率(百分比)",
+      "parameters": [
+        "2026"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_qjjzcyjznhsyl_fund",
+      "label": "区间净值超越基准年化收益率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_high_unit_nv_int_fund",
+      "label": "区间最高单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_date_qjzgdwjz_fund",
+      "label": "区间最高单位净值日",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_low_unit_nv_int_fund",
+      "label": "区间最低单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_date_qjzddwjz_fund",
+      "label": "区间最低单位净值日",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_high_adjustment_unit_nv_int_fund",
+      "label": "区间最高复权单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_date_qjzgfqdwjz_fund",
+      "label": "区间最高复权单位净值日",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_low_adjustment_unit_nv_int_fund",
+      "label": "区间最低复权单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_date_qjzdfqdwjz_fund",
+      "label": "区间最低复权单位净值日",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_high_accum_unit_nv_int_fund",
+      "label": "区间最高累计单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_low_accum_unit_nv_int_fund",
+      "label": "区间最低累计单位净值",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_date_qjzdljdwjz_fund",
+      "label": "区间最低累计单位净值日",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_yeild_30y_fund",
+      "label": "近30年收益率",
+      "parameters": [
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_ytd_yeild_fund",
+      "label": "今年以来收益率",
+      "parameters": [
+        "101",
+        "100",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_yeild_std_fund",
+      "label": "成立以来收益率",
+      "parameters": [
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_yeild_yearly_fund",
+      "label": "单年度收益率",
+      "parameters": [
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_fund_int_avg_yield_fund",
+      "label": "同类基金区间平均收益率",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_fund_std_avg_yield_fund",
+      "label": "同类基金成立以来平均收益率",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_fund_int_income_rank_fund",
+      "label": "同类基金区间收益排名",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_similar_fund_int_rank_pvalue_fund",
+      "label": "同类基金区间收益排名P值",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_similar_fund_int_rank_pct_fund",
+      "label": "同类基金区间收益排名(百分比)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_same_type_fund_quart_rank_fund",
+      "label": "同类基金区间四分位排名",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_yeild_rank_10y_fund",
+      "label": "近10年收益排名",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_yeild_rank_ytd_fund",
+      "label": "今年以来收益排名",
+      "parameters": [
+        "100",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_yeild_rank_std_fund",
+      "label": "成立以来收益排名",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_similar_fund_int_avg_yield_yhlc",
+      "label": "同类基金区间平均收益率(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_fund_int_income_rank_yhlc",
+      "label": "同类基金区间收益排名(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_similar_fund_int_rank_pvalue_yhlc",
+      "label": "同类基金区间收益排名P值(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_similar_fund_int_rank_pct_yhlc",
+      "label": "同类基金区间收益排名(百分比)(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_same_type_fund_quart_rank_yhlc",
+      "label": "同类基金区间四分位排名(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_yeild_rank_10y_yhlc",
+      "label": "近10年收益排名(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_yeild_rank_ytd_yhlc",
+      "label": "今年以来收益排名(银行理财)",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_similar_product_int_avg_income_bcm",
+      "label": "同类产品区间平均收益",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_product_int_rank_bcm",
+      "label": "同类产品区间收益排名",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_high_y_fund",
+      "label": "年最高价",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_open_y_fund",
+      "label": "年开盘价",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_low_y_fund",
+      "label": "年最低价",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_close_y_fund",
+      "label": "年收盘价",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_high_close_y_fund",
+      "label": "年最高收盘价",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_low_close_y_fund",
+      "label": "年最低收盘价",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_avg_price_y_fund",
+      "label": "年均价",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_new_chg_ratio_y_fund",
+      "label": "年涨跌幅",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_chg_y_fund",
+      "label": "年涨跌",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_vol_y_fund",
+      "label": "年成交量",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_amt_y_fund",
+      "label": "年成交额",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_trans_num_y_fund",
+      "label": "年成交笔数",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_turnover_ratio_y_fund",
+      "label": "年换手率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_avg_turnover_rate_y_fund",
+      "label": "年平均换手率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_swing_y_fund",
+      "label": "年振幅",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_mkt_compre_rating_fund",
+      "label": "市场综合评级",
+      "parameters": [
+        "2026",
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_galaxy_rating_5y_fund",
+      "label": "银河5年评级",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_galaxy_rating_3y_fund",
+      "label": "银河3年评级",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_galaxy_rating_4y_fund",
+      "label": "银河4年评级",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_3y_fund",
+      "label": "上海证券3年评级(综合评级)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_5y_fund",
+      "label": "上海证券5年评级(综合评级)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_3y_sharpe_rate_fund",
+      "label": "上海证券3年评级(夏普比率)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_3y_time_select_fund",
+      "label": "上海证券3年评级(择时能力)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_3y_sec_select_fund",
+      "label": "上海证券3年评级(选证能力)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_5y_sharpe_rate_fund",
+      "label": "上海证券5年评级(夏普比率)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_5y_time_select_fund",
+      "label": "上海证券5年评级(择时能力)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_shs_rating_5y_sec_select_fund",
+      "label": "上海证券5年评级(选证能力)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_cms_rating_fund",
+      "label": "招商证券评级",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_ht3nzqpj_fund",
+      "label": "海通3年评级",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_ht5nzqpj_fund",
+      "label": "海通5年评级",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_total_return_lipper_3y_rating_fund",
+      "label": "理柏3年评级(总回报)",
+      "parameters": [
+        "2026",
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_stable_return_lipper_3y_rating_fund",
+      "label": "理柏3年评级(稳定回报)",
+      "parameters": [
+        "2026",
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_preservation_lipper_3y_rating_fund",
+      "label": "理柏3年评级(保本能力)",
+      "parameters": [
+        "2026",
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_cost_lipper_3y_rating_fund",
+      "label": "理柏3年评级(费用)",
+      "parameters": [
+        "2026",
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_alpha_fund",
+      "label": "Alpha",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_alpha_pb_fund",
+      "label": "Alpha(业绩基准)",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_alpha_peer_avg_fund",
+      "label": "Alpha同类平均",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_alpha_annual_fund",
+      "label": "Alpha(年化)",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_alpha_annual_peer_avg_fund",
+      "label": "Alpha(年化)同类平均",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_alpha_annual_pb_fund",
+      "label": "Alpha(年化,业绩基准)",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_beta_pb_fund",
+      "label": "Beta(业绩基准)",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_beta_peer_avg_fund",
+      "label": "Beta同类平均",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_avg_yield_fund",
+      "label": "平均收益率",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_annual_yield_fund",
+      "label": "年化收益率",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_similar_product_std_avg_annualvolatility_fund",
+      "label": "成立以来年化波动率同类平均",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_workday_annual_yield_fund",
+      "label": "年化收益率(工作日)",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_annual_adjustment_nvg_ratio_fund",
+      "label": "区间收益率(年化)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_workday_annual_adjustment_nvg_ratio_fund",
+      "label": "区间收益率(工作日年化)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_geoavg_yield_fund",
+      "label": "几何平均收益率",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_avg_risk_yield_fund",
+      "label": "平均风险收益率",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_product_std_avg_maximum_drawdown_fund",
+      "label": "成立以来最大回撤率同类平均",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_geoavg_risk_yield_fund",
+      "label": "几何平均风险收益率",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_average_interval_tracking_difference_fund",
+      "label": "区间跟踪偏离度均值(跟踪指数)",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_income_standard_deviation_fund",
+      "label": "收益标准差",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_annual_volatility_fund",
+      "label": "年化波动率",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_similar_product_avg_annualvolatility_fund",
+      "label": "年化波动率同类平均",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_product_avg_annualvolatility_rank_fund",
+      "label": "年化波动率同类排名",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_decisive_coefficient_fund",
+      "label": "可决系数",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_non_system_risk_fund",
+      "label": "非系统风险",
+      "parameters": [
+        "101",
+        "101",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_max_retrace_rate_all_fund",
+      "label": "最大回撤率",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_similar_product_avg_maximum_drawdown_fund",
+      "label": "最大回撤率同类平均",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_retracement_fund",
+      "label": "回撤(相对前期高点)",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_int_drawdown_fund",
+      "label": "区间回撤(相对前期高点)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_hcxcts_fund",
+      "label": "回撤形成天数",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_hcxfts_fund",
+      "label": "回撤修复天数",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_hccxts_fund",
+      "label": "回撤持续天数",
+      "parameters": [
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_interval_date_maximum_drawdown_fund",
+      "label": "最大回撤率区间日期",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_value_at_risk_fund",
+      "label": "VaR",
+      "parameters": [
+        "102",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_conditional_value_at_risk_fund",
+      "label": "CVaR",
+      "parameters": [
+        "102",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_max_raise_fund",
+      "label": "最大上涨",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_correlation_fund",
+      "label": "相关系数",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_correlation_tracking_index_fund",
+      "label": "相关系数（跟踪指数）",
+      "parameters": [
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_up_standard_deviation_fund",
+      "label": "上行标准差",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_downside_standard_deviation_fund",
+      "label": "下行标准差",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_downside_risk_fund",
+      "label": "下行风险",
+      "parameters": [
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_similar_product_avg_downside_risk_fund",
+      "label": "下行风险同类平均",
+      "parameters": [
+        "101",
+        "101",
+        "100",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_similar_product_avg_downside_risk_rank_fund",
+      "label": "下行风险同类排名",
+      "parameters": [
+        "101",
+        "101",
+        "100",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：评级/排名体系或样本方向不统一"
+    },
+    {
+      "field": "ths_portfolio_duration_fund",
+      "label": "基金组合久期",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_jjzhjq_mkl_fund",
+      "label": "基金组合久期（麦考利）",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_portfolio_duration_ir_fund",
+      "label": "基金组合久期（基于利率风险计算）",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_risk_return_characteristics_fund",
+      "label": "风险收益特征",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_rate_sensitive_fund",
+      "label": "市场利率敏感性",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_skewness_yield_fund",
+      "label": "收益率偏度",
+      "parameters": [
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_kurtosis_yield_fund",
+      "label": "收益率峰度",
+      "parameters": [
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：专业回归或尾部参数，未确认完整解释条件"
+    },
+    {
+      "field": "ths_unit_dividend_y_fund",
+      "label": "单位年度分红",
+      "parameters": [
+        "2026"
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_dividend_total_amt_y_fund",
+      "label": "年度分红总额",
+      "parameters": [
+        "2026"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_dividend_times_y_fund",
+      "label": "年度分红次数",
+      "parameters": [
+        "2026"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_accum_dividend_total_amt_fund",
+      "label": "累计分红总额",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_accum_dividend_times_fund",
+      "label": "累计分红次数",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_unit_accum_dividend_fund",
+      "label": "单位累计分红",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_unit_dividend_int_fund",
+      "label": "单位区间分红",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_dividend_total_amt_int_fund",
+      "label": "区间分红总额",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_dividend_times_int_fund",
+      "label": "区间分红次数",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_stock_mv_to_fanv_fund",
+      "label": "股票市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_ggtzszzjjzcjzb_fund",
+      "label": "港股投资市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_stock_passive_mv_to_fanv_fund",
+      "label": "指数投资股票市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_stock_active_mv_to_fanv_fund",
+      "label": "积极投资股票市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_bond_mv_to_fanv_fund",
+      "label": "债券市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_fund_mv_to_fanv_fund",
+      "label": "基金市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_warrant_mv_to_fanv_fund",
+      "label": "权证市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_precious_metals_mv_to_fanv_fund",
+      "label": "贵金属市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_abs_mv_to_fund_anv_fund",
+      "label": "资产支持证券市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_cmi_mv_to_fund_anv_fund",
+      "label": "货币市场工具市值占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_bank_deposit_to_fanv_fund",
+      "label": "银行存款占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": true,
+      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+    },
+    {
+      "field": "ths_other_asset_to_fanv_fund",
+      "label": "其他资产占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_resale_financial_assets_mv_to_fanv_fund",
+      "label": "买入返售金融资产占基金资产净值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_stock_mv_to_fatv_fund",
+      "label": "股票市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_ggtzszzjjzczzb_fund",
+      "label": "港股投资市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_stock_passive_mv_to_fatv_fund",
+      "label": "指数投资股票市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_stock_active_mv_to_fatv_fund",
+      "label": "积极投资股票市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_bond_mv_to_fatv_fund",
+      "label": "债券市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_fund_mv_to_fatv_fund",
+      "label": "基金市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_warrant_mv_to_fatv_fund",
+      "label": "权证市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_precious_metals_mv_to_fatv_fund",
+      "label": "贵金属市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_abs_mv_to_fund_atv_fund",
+      "label": "资产支持证券市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_cmi_mv_to_fund_atv_fund",
+      "label": "货币市场工具市值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_bank_deposit_to_fatv_fund",
+      "label": "银行存款占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_other_asset_to_fatv_fund",
+      "label": "其他资产占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_resale_financial_assets_mv_to_fatv_fund",
+      "label": "买入返售金融资产占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_fnv_to_fatv_fund",
+      "label": "基金净值占基金资产总值比",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_total_top10_held_ratio_closed_fund",
+      "label": "前十大持有人持有比例合计",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_total_top10_held_share_closed_fund",
+      "label": "前十大持有人持有份额合计",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_td_commi_total_fund",
+      "label": "交易佣金(合计值)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_esg_overall_rating_fund",
+      "label": "基金ESG总评级",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_esg_total_score_fund",
+      "label": "基金ESG总评分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_management_practice_score_fund",
+      "label": "基金管理实践得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_environmental_management_score_fund",
+      "label": "基金环境管理得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_social_management_score_fund",
+      "label": "基金社会管理得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_governance_management_score_fund",
+      "label": "基金治理管理得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_controversial_events_score_fund",
+      "label": "基金争议事件得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_environmental_controversy_score_fund",
+      "label": "基金环境争议得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_social_controversy_score_fund",
+      "label": "基金社会争议得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_governance_controversy_score_fund",
+      "label": "基金治理争议得分",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_esg_product_type_fund",
+      "label": "基金ESG产品类型",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：ESG补充资料，不混入财务表现分"
+    },
+    {
+      "field": "ths_sharpe_gp_fund",
+      "label": "Sharpe(基金公司指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_alpha_gp_fund",
+      "label": "Alpha(基金公司指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_beta_gp_fund",
+      "label": "Beta(基金公司指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_treynor_gp_fund",
+      "label": "Treynor(基金公司指数)",
+      "parameters": [
+        "1",
+        "101",
+        "101",
+        "100",
+        "000001.SH"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_five_star_fund_ratio_fund",
+      "label": "五星基金占比",
+      "parameters": [
+        "2026",
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+    },
+    {
+      "field": "ths_yeild_gp_fund",
+      "label": "基金公司指数区间收益",
+      "parameters": [
+        "1",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_volatile_gp_fund",
+      "label": "基金公司指数收益标准差",
+      "parameters": [
+        "1",
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_ann_vol_gp_fund",
+      "label": "基金公司指数年化波动率",
+      "parameters": [
+        "1",
+        "101",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_maxdrawdown_gp_fund",
+      "label": "基金公司指数最大回撤",
+      "parameters": [
+        "1"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_nav_gp_fund",
+      "label": "基金管理人资产净值合计",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_nav_noncash_gp_fund",
+      "label": "基金管理人资产净值合计(非货币)",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_nav_rank_gp_fund",
+      "label": "基金管理人资产净值合计排名",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_nav_change_gp_fund",
+      "label": "基金管理人资产净值合计变动",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_nav_change_rate_gp_fund",
+      "label": "基金管理人资产净值合计变动率",
+      "parameters": [
+        ""
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_subscribe_gp_fund",
+      "label": "基金管理人报告期总申购份额",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_redeem_gp_fund",
+      "label": "基金管理人报告期总赎回份额",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_netsubscribe_gp_fund",
+      "label": "基金管理人报告期申购赎回净额",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_fs_net_pur_to_begin_rp_fund",
+      "label": "基金管理人报告期净申购占期初份额比",
+      "parameters": [
+        "2026",
+        "101"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_fund_supervisor_sq_total_pur_share_fund",
+      "label": "基金管理人单季度总申购份额",
+      "parameters": [
+        "2026",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_fund_supervisor_sq_total_redemp_share_fund",
+      "label": "基金管理人单季度总赎回份额",
+      "parameters": [
+        "2026",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_fund_supervisor_sq_pur_and_redemp_net_amt_fund",
+      "label": "基金管理人单季度申购赎回净额",
+      "parameters": [
+        "2026",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    },
+    {
+      "field": "ths_fs_sq_net_pur_to_begin_fund",
+      "label": "基金管理人单季度净申购占期初份额比",
+      "parameters": [
+        "2026",
+        "100"
+      ],
+      "selected": false,
+      "reason": "移出：管理人或公司汇总，不代表当前产品"
+    }
+  ]
+}
