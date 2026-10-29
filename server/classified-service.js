@@ -15,7 +15,7 @@ const folder=fileURLToPath(new URL('../.local/',import.meta.url));
 // Only fixed, credential-free messages cross the API boundary. Never echo upstream text.
 function queryFailure(error){
  if(error instanceof ConnectorError){
-  if(error.status===429)return {code:'query-limit',message:error.beforeUpstream?'今日数据查询额度已用完，可查看已保存报告，或明日再查询。':'查询过于频繁，请稍后再试。',status:429};
+  if(error.status===429)return {code:'query-limit',scope:error.quotaScope||null,message:error.beforeUpstream?error.quotaScope==='site'?'本站今日实时数据额度已用完，可继续查看已保存报告，或明日再查询。':'当前账号今日实时数据额度已用完，可继续查看已保存报告，或明日再查询。':'查询过于频繁，请稍后再试。',status:429};
   if(error.status===401)return {code:'session',message:'登录状态已失效，请重新登录。',status:401};
   if(error.status===403)return {code:'access-denied',message:'当前查询未获授权，请联系管理员检查访问权限。',status:403};
   if(/Token|授权未通过/.test(error.message))return {code:'data-authorization',message:'数据服务授权失败，请联系管理员检查同花顺接口凭证。',status:error.status};

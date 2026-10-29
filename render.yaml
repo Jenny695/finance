@@ -24,6 +24,6 @@ services:
       - key: IFIND_REFRESH_TOKEN
         sync: false
       - key: USER_DAILY_QUERY_LIMIT
-        value: "36"
+        value: "240"
       - key: TOTAL_DAILY_QUERY_LIMIT
         value: "240"

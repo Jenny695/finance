@@ -15,3 +15,6 @@ import-files/*
 
 # Public-service accounts and reports are private runtime data
 .public-data/
+
+# Local source backups from the Windows updater
+.source-backups/

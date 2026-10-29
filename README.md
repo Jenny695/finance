@@ -38,7 +38,7 @@ npm run dev
 
 ## 账户与数据
 
-密码使用scrypt加盐哈希；会话使用随机令牌，数据库仅存令牌哈希。公网Cookie为Secure、HttpOnly、SameSite=Lax；写请求校验同源。注册、登录、查询均有限频，个人记录和对比选择隔离。默认中国标准时间每天每用户36次、全站240次普通分析分组请求，可由管理员调整。
+密码使用scrypt加盐哈希；会话使用随机令牌，数据库仅存令牌哈希。公网Cookie为Secure、HttpOnly、SameSite=Lax；写请求校验同源。注册、登录、查询均有限频，个人记录和对比选择隔离。默认中国标准时间每天每用户240次、全站240次普通分析分组请求，可由管理员调整。
 
 开发数据库`.local`；公网默认`.public-data`或DATA_DIR指定的持久目录。账户在`accounts.sqlite`，产品与报告在`finance.sqlite`。全部为私有运行文件，不提交Git或打入Docker镜像。
 
