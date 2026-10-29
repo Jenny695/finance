@@ -12,10 +12,10 @@ import {validateUnits} from '../lib/financial-rates.js';
 import {validateSource} from '../lib/assessment.js';
 import {emptyClassifiedRows,classifiedGroups,evaluateClassifiedReport} from '../lib/classified-assessment.js';
 const folder=fileURLToPath(new URL('../.local/',import.meta.url));
-export function createClassifiedService({query=queryIFind,config=process.env,directory=folder,context=(code,category)=>productService.analysisContext(code,category),clock=()=>Date.now()}={}){
+export function createClassifiedService({query=queryIFind,config=process.env,directory=folder,context=(code,category)=>productService.analysisContext(code,category),clock=()=>Date.now(),owner=()=>null,defaultUnits={}}={}){
  let db=null,busy=false,nextAt=0;
  const database=()=>db||=(openDatabase(directory));
- const account=()=>digest(config.IFIND_ACCESS_TOKEN||config.IFIND_REFRESH_TOKEN||'none');
+ const account=()=>{const credential=config.IFIND_ACCESS_TOKEN||config.IFIND_REFRESH_TOKEN||'none',user=owner();return digest(user?{namespace:'investor-v1',user}:credential)};
  const configured=()=>!!(config.IFIND_REFRESH_TOKEN||config.IFIND_ACCESS_TOKEN);
  const stamp=()=>new Date(clock()).toISOString();
  function decorate(report){const results=investorRows(report.results);return {...report,results,groups:classifiedGroups(results),evaluation:evaluateClassifiedReport(results,report.context),progress:{completed:report.cursor,total:report.batches.length,queryCalls:report.queryCalls,valid:results.filter(r=>r.status==='returned-unverified'&&r.series.length).length,empty:results.filter(r=>r.status==='unavailable').length,failed:results.filter(r=>r.status==='request-failed').length}}}
@@ -23,8 +23,8 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
  async function start(input){
   if(!input||Object.keys(input).some(k=>!['code','category','start','end','groups','confirmed','rateUnit','allocationUnit','performanceUnit'].includes(k)))throw new ConnectorError('仅接受产品、日期、分类和查询确认，不接受凭据或自定义接口');
   if(input.confirmed!==true)throw new ConnectorError('点击查询表示执行所选分类的分组授权请求，可能消耗额度');
-  let units;try{units=validateUnits(input)}catch(e){throw new ConnectorError(e.message)}
-  const groups=input.groups||DEFAULT_INVESTOR_GROUPS;if(!Array.isArray(groups)||!groups.length||new Set(groups).size!==groups.length||groups.some(g=>!INVESTOR_GROUPS[g]))throw new ConnectorError('请选择有效的不重复指标分类');
+  let units;try{units=validateUnits({...defaultUnits,...input})}catch(e){throw new ConnectorError(e.message)}
+  const groups=input.groups||DEFAULT_INVESTOR_GROUPS;if(!Array.isArray(groups)||!groups.length||new Set(groups).size!==groups.length||groups.some(g=>!Object.hasOwn(INVESTOR_GROUPS,g)))throw new ConnectorError('请选择有效的不重复指标分类');
   const batches=investorBatches(groups);
   try{buildIndicatorQuery({code:input.code,category:input.category,start:input.start,end:input.end,fields:batches[0].fields,confirmed:true})}catch(e){throw new ConnectorError(e.message)}
   const previous=database().latestAnalysis(input.code,account());if(previous&&previous.origin!=='workbook'&&previous.category===input.category){units=validateUnits({...previous.context.units,...Object.fromEntries(['rateUnit','allocationUnit','performanceUnit'].filter(k=>k in input).map(k=>[k,input[k]]))})}const ctx={...await context(input.code,input.category),units,...(previous?.context?.decisionProfile?{decisionProfile:previous.context.decisionProfile}:{})};
@@ -55,12 +55,12 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
  }
  async function importWorkbook(input){
   const allowed=['code','category','time','table','filename','fileHash','sourceColumnCount','rateUnit','allocationUnit','performanceUnit'];
-  if(!input||Object.keys(input).some(k=>!allowed.includes(k))||typeof input.code!=='string'||!CODE_PATTERN.test(input.code||'')||!CATEGORIES[input.category])throw new ConnectorError('导入产品、类别或字段无效');
+  if(!input||Object.keys(input).some(k=>!allowed.includes(k))||typeof input.code!=='string'||!CODE_PATTERN.test(input.code||'')||!Object.hasOwn(CATEGORIES,input.category))throw new ConnectorError('导入产品、类别或字段无效');
   if(!Array.isArray(input.time)||!input.time.length||input.time.length>2000||new Set(input.time).size!==input.time.length||input.time.some(d=>typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))||new Date(d).toISOString().slice(0,10)!==d))throw new ConnectorError('导入日期无效、重复或超过2000条');
   if(input.sourceColumnCount!==undefined&&(!Number.isSafeInteger(input.sourceColumnCount)||input.sourceColumnCount<1||input.sourceColumnCount>1000))throw new ConnectorError('原始列数无效');
   const fields=Object.keys(input.table||{});if(!fields.length||fields.some(f=>!isInvestorField(f)||!Array.isArray(input.table[f])||input.table[f].length!==input.time.length))throw new ConnectorError('导入指标列或长度无效');
   if(typeof input.filename!=='string'||input.filename.length>150||!/^[a-f0-9]{64}$/.test(input.fileHash||''))throw new ConnectorError('导入文件记录无效');
-  let units;try{units=validateUnits(input)}catch(e){throw new ConnectorError(e.message)}
+  let units;try{units=validateUnits({...defaultUnits,...input})}catch(e){throw new ConnectorError(e.message)}
   const source={provider:'用户导入的同花顺终端结果（未重新联网核验）',url:'https://quantapi.51ifind.com/',title:input.filename+' · 本机导入数据',retrievedAt:stamp(),kind:'uploaded-workbook',filename:input.filename,fileHash:input.fileHash};
   const definitions=INVESTOR_INDICATORS.filter(d=>fields.includes(d.field)),parsed=parseOfficialIndicators({errorcode:0,tables:[{thscode:input.code,time:input.time,table:input.table}]},definitions,input.code,source),results=emptyClassifiedRows([]).map(d=>parsed.find(p=>p.field===d.field)||d);
   const ctx={...await context(input.code,input.category),units},dates=[...input.time].sort();

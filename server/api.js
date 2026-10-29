@@ -9,13 +9,16 @@ const envFile=fileURLToPath(new URL('../.env',import.meta.url));
 if(existsSync(envFile))process.loadEnvFile(envFile);
 function json(res,status,data){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data))}
 async function body(req){let content='';for await(const chunk of req){content+=chunk;if(Buffer.byteLength(content)>2_000_000)throw new ConnectorError('请求过大',413)}try{return JSON.parse(content)}catch{throw new ConnectorError('请求必须是有效 JSON')}}
-export function createApiMiddleware(service=productService,indicators=indicatorService,publicData=publicLibrary,classified=classifiedService){return async function apiMiddleware(req,res,next){
+export function createApiMiddleware(service=productService,indicators=indicatorService,publicData=publicLibrary,classified=classifiedService,authorize=null){return async function apiMiddleware(req,res,next){
  if(!req.url?.startsWith('/api/'))return next();
  try{
+  if(authorize)await authorize(req);
+  else {
   const address=req.socket.remoteAddress;
   if(!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(address))throw new ConnectorError('数据接口只允许本机访问',403);
   const host=new URL('http://'+req.headers.host).hostname;
   if(!['localhost','127.0.0.1','[::1]'].includes(host))throw new ConnectorError('真实数据连接器仅供本机单用户使用',403);
+  }
   const origin=req.headers.origin;
   if(origin&&new URL(origin).host!==req.headers.host)throw new ConnectorError('不允许跨站请求',403);
   if(req.method==='GET'&&req.url.startsWith('/api/analysis/latest?'))return json(res,200,classified.latest(new URL(req.url,'http://localhost').searchParams.get('code')));

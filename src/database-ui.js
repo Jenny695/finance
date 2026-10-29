@@ -2,7 +2,7 @@ import * as echarts from 'echarts/core';
 import {BarChart} from 'echarts/charts';
 import {GridComponent,TooltipComponent} from 'echarts/components';
 import {SVGRenderer} from 'echarts/renderers';
-import {CATEGORIES} from '../lib/catalog.js';
+import {INVESTOR_CATEGORIES as CATEGORIES} from '../lib/catalog.js';
 import {streamCSV,CATALOG_COLUMNS} from '../lib/stream-csv.js';
 import {inspectCSVFile,CSV_ENCODINGS} from '../lib/csv-file.js';
 echarts.use([BarChart,GridComponent,TooltipComponent,SVGRenderer]);

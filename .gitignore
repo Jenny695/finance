@@ -12,3 +12,6 @@ dist/
 # User's original exported catalogs; keep only the placement instructions
 import-files/*
 !import-files/放置目录文件说明.txt
+
+# Public-service accounts and reports are private runtime data
+.public-data/

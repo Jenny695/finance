@@ -1,0 +1,10 @@
+.git
+node_modules
+dist
+.local
+.public-data
+.env
+.env.*
+import-files
+*.zip
+*.log

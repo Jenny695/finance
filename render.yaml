@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: zhiheng-finance
+    runtime: docker
+    plan: starter
+    region: singapore
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    disk:
+      name: zhiheng-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: TRUST_PROXY
+        value: "1"
+      - key: ADMIN_USERNAME
+        value: finance_admin
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: IFIND_REFRESH_TOKEN
+        sync: false
+      - key: USER_DAILY_QUERY_LIMIT
+        value: "36"
+      - key: TOTAL_DAILY_QUERY_LIMIT
+        value: "240"

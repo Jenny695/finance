@@ -1,0 +1,30 @@
+import {DatabaseSync} from 'node:sqlite';
+import {mkdirSync} from 'node:fs';
+import {join} from 'node:path';
+import {randomBytes,randomUUID,createHash,scrypt as scryptCallback,timingSafeEqual} from 'node:crypto';
+import {promisify} from 'node:util';
+const scrypt=promisify(scryptCallback),hash=value=>createHash('sha256').update(value).digest('hex');
+export class AuthError extends Error{constructor(message,status=400){super(message);this.status=status}}
+export function createAuth({directory,clock=()=>Date.now(),secure=false,maxDailyQueries=36,maxTotalDailyQueries=240}={}){
+ mkdirSync(directory,{recursive:true});const db=new DatabaseSync(join(directory,'accounts.sqlite'));
+ db.exec(`PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;
+ CREATE TABLE IF NOT EXISTS users(id TEXT PRIMARY KEY,username TEXT UNIQUE NOT NULL,display_name TEXT NOT NULL,password_hash TEXT NOT NULL,role TEXT NOT NULL,created_at INTEGER NOT NULL);
+ CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY,user_id TEXT NOT NULL,expires_at INTEGER NOT NULL);
+ CREATE INDEX IF NOT EXISTS sessions_expiry ON sessions(expires_at);
+ CREATE TABLE IF NOT EXISTS query_usage(day TEXT NOT NULL,user_id TEXT NOT NULL,calls INTEGER NOT NULL,PRIMARY KEY(day,user_id));
+ CREATE TABLE IF NOT EXISTS rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,reset_at INTEGER NOT NULL);`);
+ const publicUser=r=>r?{id:r.id,username:r.username,displayName:r.display_name,role:r.role}:null;
+ function rateLimit(key,limit,windowMs){const now=clock(),r=db.prepare('SELECT * FROM rate_limits WHERE key=?').get(key);if(r&&r.reset_at>now&&r.count>=limit)throw new AuthError('操作较频繁，请稍后再试',429);db.prepare('INSERT OR REPLACE INTO rate_limits VALUES(?,?,?)').run(key,r&&r.reset_at>now?r.count+1:1,r&&r.reset_at>now?r.reset_at:now+windowMs)}
+ function credentials(input){if(typeof input?.username!=='string'||!/^[a-zA-Z0-9_]{3,32}$/.test(input.username))throw new AuthError('账号请使用3—32位字母、数字或下划线');if(typeof input.password!=='string'||input.password.length<8||input.password.length>128)throw new AuthError('密码长度需为8—128位');return {username:input.username.toLowerCase(),password:input.password}}
+ async function passwordHash(password){const salt=randomBytes(16).toString('hex'),derived=await scrypt(password,salt,64);return salt+':'+derived.toString('hex')}
+ async function register(input,ip='unknown'){rateLimit('register:'+ip,5,3600000);if(input?.agreement!==true)throw new AuthError('请先阅读并同意使用条款和隐私说明');const {username,password}=credentials(input);const displayName=typeof input.displayName==='string'?input.displayName.trim():username;if(!displayName||displayName.length>24)throw new AuthError('昵称请填写1—24个字符');if(db.prepare('SELECT 1 FROM users WHERE username=?').get(username))throw new AuthError('该账号已被使用，请更换账号',409);const encoded=await passwordHash(password);try{db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?)').run(randomUUID(),username,displayName,encoded,'investor',clock())}catch(e){if(e.code?.includes('CONSTRAINT')||e.message?.includes('UNIQUE'))throw new AuthError('该账号已被使用，请更换账号',409);throw e}return publicUser(db.prepare('SELECT * FROM users WHERE username=?').get(username))}
+ async function login(input,ip='unknown'){rateLimit('login:'+ip,10,900000);const {username,password}=credentials(input),r=db.prepare('SELECT * FROM users WHERE username=?').get(username);const [salt,encoded]=(r?.password_hash||'00000000000000000000000000000000:'+('0'.repeat(128))).split(':');const actual=await scrypt(password,salt,64);if(!r||!timingSafeEqual(actual,Buffer.from(encoded,'hex')))throw new AuthError('账号或密码不正确',401);return publicUser(r)}
+ function issue(user){const token=randomBytes(32).toString('base64url'),expires=clock()+7*86400000;db.prepare('DELETE FROM sessions WHERE expires_at<=?').run(clock());db.prepare('INSERT INTO sessions VALUES(?,?,?)').run(hash(token),user.id,expires);return {token,cookie:`zh_session=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=604800${secure?'; Secure':''}`}}
+ function tokenFrom(req){const cookie=req.headers.cookie||'';const value=cookie.split(';').map(x=>x.trim()).find(x=>x.startsWith('zh_session='))?.slice(11);return value&&/^[A-Za-z0-9_-]{43}$/.test(value)?value:null}
+ function user(req){const token=tokenFrom(req);if(!token)return null;return publicUser(db.prepare('SELECT u.* FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?').get(hash(token),clock()))}
+ function logout(req){const token=tokenFrom(req);if(token)db.prepare('DELETE FROM sessions WHERE token_hash=?').run(hash(token));return `zh_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure?'; Secure':''}`}
+ function consume(userId){const day=new Date(clock()+8*3600000).toISOString().slice(0,10);db.exec('BEGIN IMMEDIATE');try{const mine=db.prepare('SELECT calls FROM query_usage WHERE day=? AND user_id=?').get(day,userId)?.calls||0,total=db.prepare('SELECT sum(calls) n FROM query_usage WHERE day=?').get(day).n||0;if(mine>=maxDailyQueries||total>=maxTotalDailyQueries)throw new AuthError('今日数据查询额度已用完，可继续查看已保存报告',429);db.prepare('INSERT INTO query_usage VALUES(?,?,1) ON CONFLICT(day,user_id) DO UPDATE SET calls=calls+1').run(day,userId);db.exec('COMMIT')}catch(e){db.exec('ROLLBACK');throw e}}
+ function usage(userId){const day=new Date(clock()+8*3600000).toISOString().slice(0,10);return {used:db.prepare('SELECT calls FROM query_usage WHERE day=? AND user_id=?').get(day,userId)?.calls||0,limit:maxDailyQueries}}
+ async function bootstrap(username,password){if(!username||!password)return;const existing=db.prepare('SELECT role FROM users WHERE username=?').get(username.toLowerCase());if(existing){if(existing.role!=='admin')throw new AuthError('管理员账号已被占用，请使用其他账号');return;}const valid=credentials({username,password}),encoded=await passwordHash(valid.password);db.prepare('INSERT INTO users VALUES(?,?,?,?,?,?)').run(randomUUID(),valid.username,'管理员',encoded,'admin',clock())}
+ return {register,login,issue,user,logout,consume,usage,rateLimit,bootstrap,close:()=>db.close()};
+}
