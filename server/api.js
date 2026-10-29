@@ -38,6 +38,7 @@ export function createApiMiddleware(service=productService,indicators=indicatorS
   if(req.url==='/api/analysis/start')return json(res,200,await classified.start(input));
   if(req.url==='/api/analysis/step')return json(res,200,await classified.step(input));
   if(req.url==='/api/analysis/import-workbook')return json(res,200,await classified.importWorkbook(input));
+  if(req.url==='/api/analysis/decision-profile')return json(res,200,classified.setDecisionProfile(input));
   if(req.url==='/api/analysis/units')return json(res,200,classified.setUnits(input));
   if(req.url==='/api/analysis/control')return json(res,200,classified.control(input));
   if(req.url==='/api/indicators/probe')return json(res,200,await indicators.probe(input));

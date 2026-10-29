@@ -1,12 +1,12 @@
 {
   "receivedFields": 236,
-  "selectedFromThisFunction": 21,
+  "selectedFromThisFunction": 28,
   "carriedFromPrevious": [
     "ths_sharp_annual_fund",
     "ths_sortino_annul_fund",
     "ths_calmar_ratio_fund"
   ],
-  "activeFields": 24,
+  "activeFields": 31,
   "note": "仅字段定义与筛选理由，不含用户原始返回值。没有返回样本的字段不宣称可用。",
   "rows": [
     {
@@ -16,7 +16,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_mandate_fee_rate_fund",
@@ -25,7 +25,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_sales_service_fee_fund",
@@ -34,7 +34,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_purchasefee_fund",
@@ -43,7 +43,7 @@
         "101"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_subscriptionfee_fund",
@@ -52,7 +52,7 @@
         "101"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_redemptionfee_fund",
@@ -61,7 +61,7 @@
         "101"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_volatile_human_fund",
@@ -300,7 +300,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_adjustment_nv_fund",
@@ -309,7 +309,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_adjustment_factor_fund",
@@ -318,7 +318,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_accum_unit_nv_fund",
@@ -327,7 +327,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_jjjsnjzcxgdcs_fund",
@@ -453,7 +453,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_intervalbenchmarkgrowthrate_fund",
@@ -1218,7 +1218,7 @@
         "101"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_similar_product_std_avg_annualvolatility_fund",
@@ -1317,8 +1317,8 @@
         "101",
         "101"
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_annual_volatility_fund",
@@ -1328,7 +1328,7 @@
         "101"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_similar_product_avg_annualvolatility_fund",
@@ -1338,8 +1338,8 @@
         "101",
         "100"
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_similar_product_avg_annualvolatility_rank_fund",
@@ -1381,7 +1381,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_similar_product_avg_maximum_drawdown_fund",
@@ -1389,8 +1389,8 @@
       "parameters": [
         "100"
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_retracement_fund",
@@ -1399,7 +1399,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_int_drawdown_fund",
@@ -1514,8 +1514,8 @@
         "101",
         "100"
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_downside_risk_fund",
@@ -1526,7 +1526,7 @@
         "100"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_similar_product_avg_downside_risk_fund",
@@ -1537,8 +1537,8 @@
         "100",
         "100"
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_similar_product_avg_downside_risk_rank_fund",
@@ -1558,8 +1558,8 @@
       "parameters": [
         ""
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_jjzhjq_mkl_fund",
@@ -1595,8 +1595,8 @@
       "parameters": [
         ""
       ],
-      "selected": false,
-      "reason": "移出：重复统计、专业辅助、持有人/份额或缺少统一口径；不强制转为评分"
+      "selected": true,
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_skewness_yield_fund",
@@ -1623,7 +1623,7 @@
         "2026"
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_dividend_total_amt_y_fund",
@@ -1704,7 +1704,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_ggtzszzjjzcjzb_fund",
@@ -1740,7 +1740,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_fund_mv_to_fanv_fund",
@@ -1749,7 +1749,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_warrant_mv_to_fanv_fund",
@@ -1794,7 +1794,7 @@
         ""
       ],
       "selected": true,
-      "reason": "保留：当前产品净值、费用或配置相关；有值不等于可直接评分"
+      "reason": "保留：用于七维评分、官方备用统计或资产/费用/久期/同类背景；具体用途在报告中标注"
     },
     {
       "field": "ths_other_asset_to_fanv_fund",

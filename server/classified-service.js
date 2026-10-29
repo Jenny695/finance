@@ -1,3 +1,4 @@
+import {validateDecisionProfile} from '../lib/investor-research.js';
 import {fileURLToPath} from 'node:url';
 import {queryIFind,ConnectorError} from './connectors.js';
 import {openDatabase,digest} from './database.js';
@@ -20,13 +21,13 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
  function decorate(report){const results=investorRows(report.results);return {...report,results,groups:classifiedGroups(results),evaluation:evaluateClassifiedReport(results,report.context),progress:{completed:report.cursor,total:report.batches.length,queryCalls:report.queryCalls,valid:results.filter(r=>r.status==='returned-unverified'&&r.series.length).length,empty:results.filter(r=>r.status==='unavailable').length,failed:results.filter(r=>r.status==='request-failed').length}}}
 
  async function start(input){
-  if(!input||Object.keys(input).some(k=>!['code','category','start','end','groups','confirmed','rateUnit','allocationUnit'].includes(k)))throw new ConnectorError('仅接受产品、日期、分类和查询确认，不接受凭据或自定义接口');
+  if(!input||Object.keys(input).some(k=>!['code','category','start','end','groups','confirmed','rateUnit','allocationUnit','performanceUnit'].includes(k)))throw new ConnectorError('仅接受产品、日期、分类和查询确认，不接受凭据或自定义接口');
   if(input.confirmed!==true)throw new ConnectorError('点击查询表示执行所选分类的分组授权请求，可能消耗额度');
   let units;try{units=validateUnits(input)}catch(e){throw new ConnectorError(e.message)}
   const groups=input.groups||DEFAULT_INVESTOR_GROUPS;if(!Array.isArray(groups)||!groups.length||new Set(groups).size!==groups.length||groups.some(g=>!INVESTOR_GROUPS[g]))throw new ConnectorError('请选择有效的不重复指标分类');
   const batches=investorBatches(groups);
   try{buildIndicatorQuery({code:input.code,category:input.category,start:input.start,end:input.end,fields:batches[0].fields,confirmed:true})}catch(e){throw new ConnectorError(e.message)}
-  const ctx={...await context(input.code,input.category),units};
+  const previous=database().latestAnalysis(input.code,account());if(previous&&previous.origin!=='workbook'&&previous.category===input.category){units=validateUnits({...previous.context.units,...Object.fromEntries(['rateUnit','allocationUnit','performanceUnit'].filter(k=>k in input).map(k=>[k,input[k]]))})}const ctx={...await context(input.code,input.category),units,...(previous?.context?.decisionProfile?{decisionProfile:previous.context.decisionProfile}:{})};
   const report={code:input.code,category:ctx.product?.category||input.category,start:input.start,end:input.end,context:ctx,selectedGroups:groups,batches,results:emptyClassifiedRows(groups),cursor:0,queryCalls:0,consecutiveFailures:0,createdAt:stamp(),updatedAt:stamp(),state:configured()?'running':'blocked-credentials',notice:configured()?'空字段显示无有效数据，继续其他分类；缺失不计0分。':'本机未配置Token：已列出全部分类，未发送查询，不把未查询误报成无有效数据。'};
   return decorate(database().saveAnalysis(report,account()));
  }
@@ -53,7 +54,7 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
   return decorate(database().updateAnalysis(value,owner,{release:true}));
  }
  async function importWorkbook(input){
-  const allowed=['code','category','time','table','filename','fileHash','sourceColumnCount','rateUnit','allocationUnit'];
+  const allowed=['code','category','time','table','filename','fileHash','sourceColumnCount','rateUnit','allocationUnit','performanceUnit'];
   if(!input||Object.keys(input).some(k=>!allowed.includes(k))||typeof input.code!=='string'||!CODE_PATTERN.test(input.code||'')||!CATEGORIES[input.category])throw new ConnectorError('导入产品、类别或字段无效');
   if(!Array.isArray(input.time)||!input.time.length||input.time.length>2000||new Set(input.time).size!==input.time.length||input.time.some(d=>typeof d!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))||new Date(d).toISOString().slice(0,10)!==d))throw new ConnectorError('导入日期无效、重复或超过2000条');
   if(input.sourceColumnCount!==undefined&&(!Number.isSafeInteger(input.sourceColumnCount)||input.sourceColumnCount<1||input.sourceColumnCount>1000))throw new ConnectorError('原始列数无效');
@@ -67,12 +68,18 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
   return decorate(database().saveAnalysis(report,account()));
  }
  function setUnits(input){
-  if(!input||Object.keys(input).some(k=>!['id','rateUnit','allocationUnit'].includes(k)))throw new ConnectorError('仅接受报告与数值单位');
+  if(!input||Object.keys(input).some(k=>!['id','rateUnit','allocationUnit','performanceUnit'].includes(k)))throw new ConnectorError('仅接受报告与数值单位');
   const report=database().analysis(input.id,account());if(!report)throw new ConnectorError('报告不存在或不属于当前凭据',404);
-  let units;try{units=validateUnits(input)}catch(e){throw new ConnectorError(e.message)}
+  let units;try{units=validateUnits({...report.context.units,...input})}catch(e){throw new ConnectorError(e.message)}
   return decorate(database().updateAnalysis({...report,context:{...report.context,units},updatedAt:stamp(),notice:'已按确认的单位重新计算当前报告；本次没有请求同花顺。'},account()));
  }
+ function setDecisionProfile(input){
+  if(!input||Object.keys(input).some(k=>!['id','profile'].includes(k)))throw new ConnectorError('投资计划参数无效');
+  const report=database().analysis(input.id,account());if(!report)throw new ConnectorError('报告不存在或不属于当前凭据',404);
+  let profile;try{profile=validateDecisionProfile(input.profile)}catch(e){throw new ConnectorError(e.message)}
+  return decorate(database().updateAnalysis({...report,context:{...report.context,decisionProfile:profile},updatedAt:stamp()},account()));
+ }
  function latest(code){if(typeof code!=='string'||!code.length||code.length>40)throw new ConnectorError('产品代码无效');const r=database().latestAnalysis(code,account());if(!r)throw new ConnectorError('当前凭据下尚无该产品分类报告',404);return decorate(r)}
- return {start,get,control,step,setUnits,importWorkbook,latest,history:()=>({reports:database().analyses(account()).map(decorate)}),close:()=>db?.close()};
+ return {start,get,control,step,setUnits,setDecisionProfile,importWorkbook,latest,history:()=>({reports:database().analyses(account()).map(decorate)}),close:()=>db?.close()};
 }
 export const classifiedService=createClassifiedService();
