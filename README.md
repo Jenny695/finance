@@ -4,6 +4,10 @@
 
 普通导航：**首页、产品查询、产品对比、投资知识、个人中心**。不提供演示持仓、虚构产品、风险等级筛选或无数据的“其他资管”选项。
 
+## 免费体验：Hugging Face Spaces
+
+已适配Docker Space的7860端口、非root运行和平台HTTPS地址。只需在Space根目录添加[部署Dockerfile](deploy/huggingface/Dockerfile)和[Space配置README](deploy/huggingface/README.md)，按[免费体验部署教程](docs/huggingface-deployment.md)设置秘密变量。免费实例可能休眠，重建可能清空账号和目录；此方案适合体验，不承诺数据持久保存。
+
 ## 无法绑定托管平台付款卡：独立云服务器
 
 已提供 Docker Compose + Caddy 配置，服务器后台运行、持久保存账号和目录、自动申请HTTPS证书，Windows电脑关机后网站仍可访问。准备自己的云服务器和域名后，按[云服务器部署教程](docs/cloud-server-deployment.md)操作；服务器与域名费用以平台结算页为准。
