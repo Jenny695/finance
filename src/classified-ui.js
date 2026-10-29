@@ -21,7 +21,7 @@ export function mountClassified(){let active=true,report=null,driving=false,infl
  function render(){if(!active||!report)return;dispose();const v=report.evaluation,s=v.summary,dims=v.assessment.dimensions.filter(d=>Number.isFinite(d.score));
   for(const [id,key]of [['ca-rate-unit','rateUnit'],['ca-allocation-unit','allocationUnit'],['ca-performance-unit','performanceUnit']])if(by(id))by(id).value=report.context.units?.[key]||'auto';
   const status=report.origin==='workbook'?`已导入 · ${report.progress.valid}项有效数据`:`${report.state==='completed'?'分析完成':driving?'分析中':report.state==='blocked-credentials'?'数据服务未连接':'查询已暂停'} · ${report.progress.valid}项有效数据${driving?' · '+report.progress.completed+'/'+report.progress.total:''}${report.progress.failed?' · '+report.progress.failed+'项请求失败':''}`;
-  text('ca-progress',status);text('ca-message',report.state==='blocked-credentials'?isAdmin()?'请在服务设置中配置数据授权。':'市场数据服务暂未开放，可先浏览投资知识。':report.state==='paused-error'?'数据请求失败，请稍后继续。':'');
+  text('ca-progress',status);text('ca-message',report.state==='blocked-credentials'?isAdmin()?'请在服务设置中配置数据授权。':'市场数据服务暂未开放，可先浏览投资知识。':report.lastFailure?.message|| (report.state==='paused-error'?'数据请求失败，请稍后继续。':''));
   if(!report.progress.valid){by('ca-result').innerHTML=report.state==='completed'?'<section class="p-panel ca-section"><p class="ca-note">该产品在所选区间暂无可用数据，可更换日期或查看其他产品。</p></section>':'';controls();return}
   const numeric=report.results.filter(r=>r.status==='returned-unverified'&&r.series.length&&r.series.every(p=>typeof p.value==='number'));
   const queried=report.groups.filter(g=>g.items.some(r=>r.status!=='not-selected'));const selected=(categoryFilter==='all'?queried:queried.filter(g=>g.id===categoryFilter)).filter(g=>!onlyAvailable||g.valid>0);

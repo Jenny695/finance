@@ -12,6 +12,18 @@ import {validateUnits} from '../lib/financial-rates.js';
 import {validateSource} from '../lib/assessment.js';
 import {emptyClassifiedRows,classifiedGroups,evaluateClassifiedReport} from '../lib/classified-assessment.js';
 const folder=fileURLToPath(new URL('../.local/',import.meta.url));
+// Only fixed, credential-free messages cross the API boundary. Never echo upstream text.
+function queryFailure(error){
+ if(error instanceof ConnectorError){
+  if(error.status===429)return {code:'query-limit',message:error.beforeUpstream?'今日数据查询额度已用完，可查看已保存报告，或明日再查询。':'查询过于频繁，请稍后再试。',status:429};
+  if(error.status===401)return {code:'session',message:'登录状态已失效，请重新登录。',status:401};
+  if(error.status===403)return {code:'access-denied',message:'当前查询未获授权，请联系管理员检查访问权限。',status:403};
+  if(/Token|授权未通过/.test(error.message))return {code:'data-authorization',message:'数据服务授权失败，请联系管理员检查同花顺接口凭证。',status:error.status};
+  if(/连接失败/.test(error.message))return {code:'network',message:'暂时无法连接同花顺数据服务，请稍后再试。',status:error.status};
+  if(/iFinD 查询/.test(error.message))return {code:'upstream-query',message:'同花顺未接受本次查询，请联系管理员核查接口权限、额度与产品指标。',status:error.status};
+ }
+ return {code:'query-failed',message:'数据请求未完成，请稍后重试或联系管理员。',status:502};
+}
 export function createClassifiedService({query=queryIFind,config=process.env,directory=folder,context=(code,category)=>productService.analysisContext(code,category),clock=()=>Date.now(),owner=()=>null,defaultUnits={}}={}){
  let db=null,busy=false,nextAt=0;
  const database=()=>db||=(openDatabase(directory));
@@ -39,18 +51,18 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
   const owner=account(),claim=database().claimAnalysis(id,owner);if(!claim)throw new ConnectorError('报告不存在或不属于当前凭据',404);if(claim.busy)throw new ConnectorError('该报告已有进行中请求',409);
   const report=claim.report;if(!claim.claimed)return decorate(report);
   const batch=report.batches[report.cursor];if(!batch)return decorate(database().updateAnalysis({...report,state:'completed',updatedAt:stamp()},owner,{release:true}));
-  busy=true;let results=report.results,failure=false,queried=false;const fields=batch.fields.filter(isInvestorField);
+  busy=true;let results=report.results,failure=false,queried=false,lastFailure=null,blocked=false;const fields=batch.fields.filter(isInvestorField);
   try{
    if(fields.length){const plan=buildIndicatorQuery({code:report.code,category:report.category,start:report.start,end:report.end,fields,confirmed:true});queried=true;const raw=await query(plan.query);
    if(!validateSource(raw?.source)||Number(raw?.data?.errorcode)!==0)throw Error('invalid source or response');
    const parsed=parseOfficialIndicators(raw.data,plan.definitions,report.code,raw.source).map(r=>({...r,score:null,scoreReason:'原始指标不按数值大小直接打分；可评分的派生指标及公式单独展示',outsideRequestedRange:r.series.filter(p=>p.date<report.start||p.date>report.end).length}));
    results=results.map(r=>parsed.find(p=>p.field===r.field)||r);}
-  }catch{failure=true;results=results.map(r=>fields.includes(r.field)?{...r,status:'request-failed',notice:'本组请求未完成；不能据此断言字段无数据。未自动重试。',series:[]}:r)}
+  }catch(error){failure=true;lastFailure={...queryFailure(error),at:stamp()};blocked=error instanceof ConnectorError&&error.beforeUpstream===true;if(blocked)queried=false;else results=results.map(r=>fields.includes(r.field)?{...r,status:'request-failed',notice:lastFailure.message,series:[]}:r)}
   finally{busy=false;nextAt=clock()+1000}
-  const current=database().analysis(id,owner)||report;const cursor=report.cursor+1,consecutiveFailures=queried?(failure?report.consecutiveFailures+1:0):report.consecutiveFailures;
+  const current=database().analysis(id,owner)||report;const cursor=report.cursor+(blocked?0:1),consecutiveFailures=queried?(failure?report.consecutiveFailures+1:0):report.consecutiveFailures;
   let state=cursor>=report.batches.length?'completed':current.state;
-  if(consecutiveFailures>=3&&state==='running')state='paused-error';
-  const value={...report,results,cursor,queryCalls:report.queryCalls+(queried?1:0),consecutiveFailures,state,updatedAt:stamp(),notice:state==='paused-error'?'连续三组请求失败，已暂停以避免重复消耗；尚未查询项仍保留。':failure?'本组请求失败，已保留状态；其他分类继续。':!queried?'已跳过旧报告中移除的字段，本次未请求接口。':'空字段不计零分，有效净值用于多维评分。'};
+  if((blocked||consecutiveFailures>=3)&&state==='running')state='paused-error';
+  const value={...report,results,cursor,lastFailure,queryCalls:report.queryCalls+(queried?1:0),consecutiveFailures,state,updatedAt:stamp(),notice:blocked?lastFailure.message:state==='paused-error'?'连续三组请求失败，已暂停以避免重复消耗；尚未查询项仍保留。':failure?'本组请求失败，已保留状态；其他分类继续。':!queried?'已跳过旧报告中移除的字段，本次未请求接口。':'空字段不计零分，有效净值用于多维评分。'};
   return decorate(database().updateAnalysis(value,owner,{release:true}));
  }
  async function importWorkbook(input){

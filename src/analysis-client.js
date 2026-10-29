@@ -11,6 +11,6 @@ export async function fetchAnalysisReport(input,{request,alive=()=>true,onProgre
   if(!alive()){if(report.state==='running')await request('/api/analysis/control',{id:report.id,action:'pause'}).catch(()=>{});check()}
   onProgress(report);
  }
- if(!report.progress?.valid)throw new Error(report.progress?.failed?'数据请求失败，请检查授权和网络后重试':'所选产品与区间未返回有效指标');
+ if(!report.progress?.valid)throw new Error(report.lastFailure?.message||(report.progress?.failed?'数据请求失败，请检查授权和网络后重试':'所选产品与区间未返回有效指标'));
  return {...report,partial:report.state!=='completed'||report.progress.failed>0};
 }
