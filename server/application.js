@@ -1,3 +1,4 @@
+import {createMarketData} from './market-data.js';
 import {AsyncLocalStorage} from 'node:async_hooks';
 import {isIP} from 'node:net';
 import {createAuth,AuthError} from './auth.js';
@@ -14,7 +15,8 @@ export function createApplication({directory,config=process.env,query=queryIFind
  const scope=new AsyncLocalStorage();const auth=createAuth({directory,clock,secure:origin?.startsWith('https:'),maxDailyQueries:Number(config.USER_DAILY_QUERY_LIMIT)||36,maxTotalDailyQueries:Number(config.TOTAL_DAILY_QUERY_LIMIT)||240});
  const products=createProductService({folder:directory,config,defaults:false,hideOther:true,clock});
  const library=createPublicLibrary({folder:directory,clock});
- const classified=createClassifiedService({directory,config,clock,owner:()=>scope.getStore()?.user.id,context:(code,category)=>products.analysisContext(code,category),defaultUnits:{rateUnit:config.IFIND_RATE_UNIT||'auto',allocationUnit:config.IFIND_ALLOCATION_UNIT||'auto',performanceUnit:config.IFIND_PERFORMANCE_UNIT||'auto'},query:async plan=>{const user=scope.getStore()?.user;if(!user)throw new ConnectorError('请先登录',401);try{auth.consume(user.id)}catch(error){const blocked=new ConnectorError(error.message,error.status);blocked.beforeUpstream=true;throw blocked}return query(plan)}});
+ const market=createMarketData({directory,config,query,clock,consume:id=>{try{auth.consume(id)}catch(error){const blocked=new ConnectorError(error.message,error.status);blocked.beforeUpstream=true;throw blocked}}});
+ const classified=createClassifiedService({directory,config,clock,owner:()=>scope.getStore()?.user.id,context:(code,category)=>products.analysisContext(code,category),defaultUnits:{rateUnit:config.IFIND_RATE_UNIT||'auto',allocationUnit:config.IFIND_ALLOCATION_UNIT||'auto',performanceUnit:config.IFIND_PERFORMANCE_UNIT||'auto'},query:async plan=>{const user=scope.getStore()?.user;if(!user)throw new ConnectorError('请先登录',401);return market.read(plan,user)}});
  function expectedOrigin(req){if(origin)return new URL(origin).origin;const host=new URL('http://'+req.headers.host);if(!['localhost','127.0.0.1','[::1]'].includes(host.hostname))throw new AuthError('访问地址无效',403);return host.origin}
  function validateRequest(req){const target=expectedOrigin(req);if(req.headers.host!==new URL(target).host)throw new AuthError('访问地址无效',403);if(req.headers['sec-fetch-site']==='cross-site')throw new AuthError('不允许跨站请求',403);if(req.method==='POST'&&req.headers.origin!==target)throw new AuthError('请从本站提交请求',403);if(req.headers.origin&&req.headers.origin!==target)throw new AuthError('不允许跨站请求',403)}
  function ip(req){if(config.TRUST_PROXY==='1'){const forwarded=String(req.headers['x-forwarded-for']||'').split(',').at(-1).trim();if(isIP(forwarded))return forwarded}return req.socket.remoteAddress||'unknown'}
@@ -30,5 +32,5 @@ export function createApplication({directory,config=process.env,query=queryIFind
   if(path==='/api/analysis/step'&&req.method==='POST')return await enqueueStep(req,user,res,next);
   return await scope.run({user},()=>api(req,res,next));
  }catch(error){json(res,error.status||500,{error:error instanceof AuthError||error instanceof ConnectorError?error.message:'服务暂不可用，请稍后重试'})}}
- return {handle,ready,products,classified,auth,close(){classified.close();products.close();library.close();auth.close()}};
+ return {handle,ready,products,classified,auth,close(){classified.close();market.close();products.close();library.close();auth.close()}};
 }

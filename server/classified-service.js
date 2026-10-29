@@ -51,18 +51,18 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
   const owner=account(),claim=database().claimAnalysis(id,owner);if(!claim)throw new ConnectorError('报告不存在或不属于当前凭据',404);if(claim.busy)throw new ConnectorError('该报告已有进行中请求',409);
   const report=claim.report;if(!claim.claimed)return decorate(report);
   const batch=report.batches[report.cursor];if(!batch)return decorate(database().updateAnalysis({...report,state:'completed',updatedAt:stamp()},owner,{release:true}));
-  busy=true;let results=report.results,failure=false,queried=false,lastFailure=null,blocked=false;const fields=batch.fields.filter(isInvestorField);
+  busy=true;let results=report.results,failure=false,queried=false,lastFailure=null,blocked=false,cached=false;const fields=batch.fields.filter(isInvestorField);
   try{
-   if(fields.length){const plan=buildIndicatorQuery({code:report.code,category:report.category,start:report.start,end:report.end,fields,confirmed:true});queried=true;const raw=await query(plan.query);
+   if(fields.length){const plan=buildIndicatorQuery({code:report.code,category:report.category,start:report.start,end:report.end,fields,confirmed:true});queried=true;const raw=await query(plan.query);cached=raw.cacheHit===true;if(cached)queried=false;
    if(!validateSource(raw?.source)||Number(raw?.data?.errorcode)!==0)throw Error('invalid source or response');
    const parsed=parseOfficialIndicators(raw.data,plan.definitions,report.code,raw.source).map(r=>({...r,score:null,scoreReason:'原始指标不按数值大小直接打分；可评分的派生指标及公式单独展示',outsideRequestedRange:r.series.filter(p=>p.date<report.start||p.date>report.end).length}));
    results=results.map(r=>parsed.find(p=>p.field===r.field)||r);}
   }catch(error){failure=true;lastFailure={...queryFailure(error),at:stamp()};blocked=error instanceof ConnectorError&&error.beforeUpstream===true;if(blocked)queried=false;else results=results.map(r=>fields.includes(r.field)?{...r,status:'request-failed',notice:lastFailure.message,series:[]}:r)}
   finally{busy=false;nextAt=clock()+1000}
-  const current=database().analysis(id,owner)||report;const cursor=report.cursor+(blocked?0:1),consecutiveFailures=queried?(failure?report.consecutiveFailures+1:0):report.consecutiveFailures;
+  const current=database().analysis(id,owner)||report;const cursor=report.cursor+(blocked?0:1),consecutiveFailures=failure?(queried?report.consecutiveFailures+1:report.consecutiveFailures):0;
   let state=cursor>=report.batches.length?'completed':current.state;
   if((blocked||consecutiveFailures>=3)&&state==='running')state='paused-error';
-  const value={...report,results,cursor,lastFailure,queryCalls:report.queryCalls+(queried?1:0),consecutiveFailures,state,updatedAt:stamp(),notice:blocked?lastFailure.message:state==='paused-error'?'连续三组请求失败，已暂停以避免重复消耗；尚未查询项仍保留。':failure?'本组请求失败，已保留状态；其他分类继续。':!queried?'已跳过旧报告中移除的字段，本次未请求接口。':'空字段不计零分，有效净值用于多维评分。'};
+  const value={...report,results,cursor,lastFailure,marketCacheHits:(report.marketCacheHits||0)+(cached?1:0),queryCalls:report.queryCalls+(queried?1:0),consecutiveFailures,state,updatedAt:stamp(),notice:blocked?lastFailure.message:state==='paused-error'?'连续三组请求失败，已暂停以避免重复消耗；尚未查询项仍保留。':failure?'本组请求失败，已保留状态；其他分类继续。':cached?'已读取近期共享行情，本组未调用同花顺接口。':!queried?'已跳过旧报告中移除的字段，本次未请求接口。':'空字段不计零分，有效净值用于多维评分。'};
   return decorate(database().updateAnalysis(value,owner,{release:true}));
  }
  async function importWorkbook(input){

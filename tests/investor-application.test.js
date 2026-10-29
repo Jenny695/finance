@@ -13,16 +13,22 @@ test('生产静态服务只公开构建产物和健康检查，隐藏账号库/�
 
 test('公开分析拒绝原型属性伪装类别或分组，不进入上游请求',async t=>{const x=await fixture(t),a=await x.register('input_guard');for(const changed of [{category:'constructor'},{groups:['__proto__']},{groups:['toString']}])assert.equal((await x.request('/api/analysis/start',{...analysis('SYNTH001.OF'),...changed},a.cookie)).status,400);assert.equal(x.calls(),0)});
 
-test('管理员与普通用户可查询同一产品；用户额度耗尽明确显示且不冒充上游字段失败',async t=>{
+test('管理员和普通用户共享官方行情、私有报告仍隔离；缓存不耗额度，限额只阻止新上游请求',async t=>{
  const x=await fixture(t,{USER_DAILY_QUERY_LIMIT:'1'});await x.app.auth.bootstrap('test_admin','valid-admin-password-2026');
  const login=await x.request('/api/auth/login',{username:'test_admin',password:'valid-admin-password-2026'}),admin=login.headers.get('set-cookie').split(';')[0];
  const a=await x.register('same_query_a'),b=await x.register('same_query_b');
+ let adminReport;
  for(const cookie of [admin,a.cookie]){
   const started=await x.request('/api/analysis/start',analysis('SYNTH001.OF'),cookie);assert.equal(started.status,200);const report=await started.json();
   const step=await x.request('/api/analysis/step',{id:report.id},cookie);assert.equal(step.status,200);const result=await step.json();assert.ok(result.progress.valid>0);assert.equal(result.lastFailure,null);
+  if(cookie===admin)adminReport=result;else{assert.equal(result.queryCalls,0);assert.equal(result.marketCacheHits,1);assert.deepEqual(result.results,adminReport.results)}
  }
- const started=await(await x.request('/api/analysis/start',analysis('SYNTH002.OF'),a.cookie)).json();
- const blocked=await(await x.request('/api/analysis/step',{id:started.id},a.cookie)).json();
- assert.equal(blocked.state,'paused-error');assert.equal(blocked.lastFailure.code,'query-limit');assert.match(blocked.lastFailure.message,/额度已用完/);assert.equal(blocked.queryCalls,0);assert.equal(blocked.cursor,0);assert.equal(blocked.progress.failed,0);assert.equal(x.calls(),2);
- const other=await(await x.request('/api/analysis/start',analysis('SYNTH001.OF'),b.cookie)).json();const available=await(await x.request('/api/analysis/step',{id:other.id},b.cookie)).json();assert.ok(available.progress.valid>0);assert.equal(x.calls(),3);
+ assert.equal(x.calls(),1);assert.equal((await(await x.request('/api/auth/session',undefined,a.cookie)).json()).usage.used,0);
+ assert.equal((await x.request('/api/analysis/report?id='+adminReport.id,undefined,a.cookie)).status,404);
+ async function run(code,cookie){const started=await(await x.request('/api/analysis/start',analysis(code),cookie)).json();return (await x.request('/api/analysis/step',{id:started.id},cookie)).json()}
+ const fresh=await run('SYNTH002.OF',a.cookie);assert.ok(fresh.progress.valid>0);assert.equal(fresh.queryCalls,1);
+ const blocked=await run('SYNTH003.OF',a.cookie);
+ assert.equal(blocked.state,'paused-error');assert.equal(blocked.lastFailure.code,'query-limit');assert.equal(blocked.queryCalls,0);assert.equal(blocked.cursor,0);assert.equal(blocked.progress.failed,0);assert.equal(x.calls(),2);
+ const cached=await run('SYNTH001.OF',a.cookie);assert.ok(cached.progress.valid>0);assert.equal(cached.queryCalls,0);
+ const available=await run('SYNTH002.OF',b.cookie);assert.ok(available.progress.valid>0);assert.equal(available.queryCalls,0);assert.equal(x.calls(),2);
 });
