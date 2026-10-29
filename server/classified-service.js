@@ -18,7 +18,7 @@ export function createClassifiedService({query=queryIFind,config=process.env,dir
  async function start(input){
   if(!input||Object.keys(input).some(k=>!['code','category','start','end','groups','confirmed'].includes(k)))throw new ConnectorError('仅接受产品、日期、分类和查询确认，不接受凭据或自定义接口');
   if(input.confirmed!==true)throw new ConnectorError('点击查询表示执行所选分类的分组授权请求，可能消耗额度');
-  const groups=input.groups||Object.keys(INDICATOR_GROUPS);if(!Array.isArray(groups)||!groups.length||new Set(groups).size!==groups.length||groups.some(g=>!INDICATOR_GROUPS[g]))throw new ConnectorError('请选择有效的不重复指标分类');
+  const groups=input.groups||['core'];if(!Array.isArray(groups)||!groups.length||new Set(groups).size!==groups.length||groups.some(g=>!INDICATOR_GROUPS[g]))throw new ConnectorError('请选择有效的不重复指标分类');
   const batches=indicatorPlan().batches.filter(b=>b.id!=='starter'&&groups.includes(b.id.split('-')[0]));
   try{buildIndicatorQuery({code:input.code,category:input.category,start:input.start,end:input.end,fields:batches[0].fields,confirmed:true})}catch(e){throw new ConnectorError(e.message)}
   const ctx=await context(input.code,input.category);

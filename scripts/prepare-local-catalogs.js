@@ -8,7 +8,7 @@ import {inspectCSVFile} from '../lib/csv-file.js';
 import {streamCSV,CATALOG_COLUMNS} from '../lib/stream-csv.js';
 import {productRecord} from '../lib/catalog.js';
 const project=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const definitions={'银行理财产品(存续期)':{file:'bank.csv',category:'bank'},'全部(信托产品)':{file:'trust.csv',category:'trust'},'全部(已成立、未到期)':{file:'unexpired.csv',category:'other'},'全部基金':{file:'funds.csv',category:'fund'}};
+const definitions={'银行理财产品(存续期)':{file:'bank.csv',category:'bank'},'全部(信托产品)':{file:'trust.csv',category:'trust'},'全部(已成立、未到期)':{file:'unexpired.csv',category:'broker'},'全部基金':{file:'funds.csv',category:'fund'}};
 const digest=b=>createHash('sha256').update(b).digest('hex');
 export function catalogRecords(rows,category){
  const headers=rows[0]?.map(v=>String(v??'').trim())||[];const ci=headers.findIndex(h=>CATALOG_COLUMNS.code.includes(h)),ni=headers.findIndex(h=>CATALOG_COLUMNS.name.includes(h));
@@ -27,14 +27,14 @@ export async function prepareLocalCatalogs({root=project,onProgress=()=>{}}={}){
  try{files=await readdir(incoming)}catch(error){if(error.code==='ENOENT')return {prepared:false};throw error}
  const chosen=files.filter(n=>['.csv','.xlsx'].includes(extname(n).toLowerCase())&&(definitions[n.slice(0,-extname(n).length)]||n.slice(0,-extname(n).length)==='公募REITs')).sort();
  if(!chosen.length)return {prepared:false};const inputs=[];for(const name of chosen)inputs.push({name,bytes:await readFile(resolve(incoming,name))});
- const fingerprint=digest(JSON.stringify(inputs.map(x=>[x.name,digest(x.bytes)])));let manifest;
+ const fingerprint=digest('catalog-classes-2:'+JSON.stringify(inputs.map(x=>[x.name,digest(x.bytes)])));let manifest;
  try{manifest=JSON.parse(await readFile(resolve(output,'manifest.json'),'utf8'))}catch(error){if(error.code!=='ENOENT')throw error;manifest={version:1,files:[],removeProducts:[]}}
  if(manifest.preparationFingerprint===fingerprint)return {prepared:false,reused:true,total:manifest.total};
  const staged=new Map();let newFunds=null,oldREITs=null;const targets=new Set();
  for(const input of inputs){const stem=input.name.slice(0,-extname(input.name).length);onProgress('正在读取 '+input.name+'…');const rows=await readRows(input.bytes,input.name);
   if(stem==='公募REITs'){oldREITs=catalogRecords(rows,'fund').records;continue}
   const definition=definitions[stem];if(targets.has(definition.file))throw Error('同一类目录同时有CSV和XLSX，请只保留一份：'+stem);targets.add(definition.file);
-  const {records,skipped}=catalogRecords(rows,definition.category),text=csv(records);staged.set(definition.file,{text,item:{...definition,rows:records.length,sha256:digest(Buffer.from(text)),originalFile:input.name,originalSha256:digest(input.bytes),skippedRows:skipped}});if(definition.file==='funds.csv')newFunds=new Set(records.map(r=>r.code));
+  const {records,skipped}=catalogRecords(rows,definition.category);if(stem==='全部(已成立、未到期)'&&!records.every(r=>/^J[A-Z0-9]*\.OF$/.test(r.code)))throw Error('已成立未到期目录含非券商资管代码，请先核对产品类别');const text=csv(records);staged.set(definition.file,{text,item:{...definition,rows:records.length,sha256:digest(Buffer.from(text)),originalFile:input.name,originalSha256:digest(input.bytes),skippedRows:skipped}});if(definition.file==='funds.csv')newFunds=new Set(records.map(r=>r.code));
  }
  if(!staged.size)throw Error('公募REITs只用于替换核对，请放入全部基金.xlsx及其他要导入的目录');
  if(newFunds&&!oldREITs&&manifest.files.some(f=>f.file==='reits.csv'))oldREITs=catalogRecords(await readRows(await readFile(resolve(output,'reits.csv')),'reits.csv'),'fund').records;
