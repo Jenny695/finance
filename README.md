@@ -4,6 +4,10 @@
 
 普通导航：**首页、产品查询、产品对比、投资知识、个人中心**。不提供演示持仓、虚构产品、风险等级筛选或无数据的“其他资管”选项。
 
+## 无法绑定托管平台付款卡：独立云服务器
+
+已提供 Docker Compose + Caddy 配置，服务器后台运行、持久保存账号和目录、自动申请HTTPS证书，Windows电脑关机后网站仍可访问。准备自己的云服务器和域名后，按[云服务器部署教程](docs/cloud-server-deployment.md)操作；服务器与域名费用以平台结算页为准。
+
 ## 给他人使用：一键托管
 
 [在 Render 创建网站](https://render.com/deploy?repo=https://github.com/Jenny695/finance)

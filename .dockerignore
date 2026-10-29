@@ -8,3 +8,8 @@ dist
 import-files
 *.zip
 *.log
+
+runtime-data
+runtime-caddy
+.source-backups
+*.tar.gz

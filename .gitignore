@@ -18,3 +18,8 @@ import-files/*
 
 # Local source backups from the Windows updater
 .source-backups/
+
+# Cloud-server runtime data, certificates and private backups
+runtime-data/
+runtime-caddy/
+*.tar.gz
