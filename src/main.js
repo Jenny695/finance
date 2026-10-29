@@ -57,7 +57,7 @@ let days = 180;
 let selected = new Set(products.map(p=>p.id));
 let hideBalance = false;
 let toastTimer;
-const navs = [['/','search','产品查询'],['/analysis','chart','产品综合查询'],['/holdings','wallet','演示持仓'],['/compare','compare','产品对比'],['/methodology','chart','评估方法'],['/sources','database','数据源说明'],['/database','database','产品数据库'],['/indicators','chart','指标方案与实测'],['/connection','layers','数据连接'],['/profile','user','个人中心']];
+const navs = [['/','search','产品查询'],['/analysis','chart','产品综合查询'],['/holdings','wallet','演示持仓'],['/compare','compare','产品对比'],['/methodology','chart','评估方法'],['/sources','database','数据源说明'],['/database','database','产品数据库'],['/connection','layers','数据连接'],['/profile','user','个人中心']];
 const getRoute = () => location.hash.slice(1) || '/';
 const session = () => {try {return JSON.parse(sessionStorage.getItem('zh-session'))} catch {return null}};
 const name = () => session()?.name || '演示账户';
