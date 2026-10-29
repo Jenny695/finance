@@ -19,7 +19,7 @@ export async function importCatalogBundle({folder=resolve(project,'.local'),onPr
  for(const item of manifest.files){
   if(typeof item.file!=='string'||basename(item.file)!==item.file||/[\\/]/.test(item.file)||!item.file.endsWith('.csv')||!CATEGORIES[item.category]||!Number.isSafeInteger(item.rows)||item.rows<1||!/^[a-f0-9]{64}$/.test(item.sha256))throw Error('目录文件清单无效');
   const path=resolve(input,item.file);if(await hash(path)!==item.sha256)throw Error(item.file+'校验不符，未导入任何文件');
-  const migrateBroker=item.category==='other'&&item.file==='unexpired.csv'&&/^全部\(已成立、未到期\)\.(csv|xlsx)$/i.test(item.originalFile||'');let onlyBroker=true;let n=0;for await(const record of records(path,item.category)){productRecord(record);if(!/^J[A-Z0-9]*\.OF$/.test(record.code))onlyBroker=false;if(codes.has(record.code))throw Error('目录重复代码：'+record.code);codes.add(record.code);n++}
+  const migrateBroker=item.category==='other'&&item.file==='unexpired.csv'&&/^全部\(已成立、未到期\)\.(csv|xlsx)$/i.test(item.originalFile||'');let onlyBroker=true;let n=0;for await(const record of records(path,item.category)){productRecord(record);if(!/^J[A-Z0-9_-]*\.OF$/.test(record.code))onlyBroker=false;if(codes.has(record.code))throw Error('目录重复代码：'+record.code);codes.add(record.code);n++}
   if(n!==item.rows)throw Error(item.file+'行数与清单不一致');total+=n;if(migrateBroker&&onlyBroker)item.category='broker';
  }
  if(total!==manifest.total)throw Error('目录总条数与清单不一致');
@@ -41,7 +41,7 @@ export async function importCatalogBundle({folder=resolve(project,'.local'),onPr
 async function main(){
  if(process.argv.length>3||process.argv[2]&&process.argv[2]!=='--if-needed')throw Error('仅支持可选参数--if-needed');
  const folder=resolve(project,'.local'),receipt=resolve(folder,'imports/installed.json'),manifest=resolve(folder,'imports/manifest.json');
- const fingerprint=createHash('sha256').update('catalog-classes-2:'+await hash(manifest)).digest('hex');
+ const fingerprint=createHash('sha256').update('catalog-classes-3:'+await hash(manifest)).digest('hex');
  if(process.argv[2]==='--if-needed'){
   try{const previous=JSON.parse(await readFile(receipt,'utf8'));await access(resolve(folder,'finance.sqlite'));if(previous.fingerprint===fingerprint){console.log('本批目录已经导入，保留现有数据库。');return}}catch(error){if(!['ENOENT','SyntaxError'].includes(error.code||error.name))throw error}
  }
