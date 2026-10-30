@@ -1,3 +1,4 @@
+import {createQualitativeService} from './qualitative-service.js';
 import {createMarketData} from './market-data.js';
 import {AsyncLocalStorage} from 'node:async_hooks';
 import {isIP} from 'node:net';
@@ -7,20 +8,21 @@ import {createClassifiedService} from './classified-service.js';
 import {createPublicLibrary} from './public-library.js';
 import {createApiMiddleware} from './api.js';
 import {queryIFind,ConnectorError} from './connectors.js';
-const memberGet=new Set(['/api/products','/api/connection','/api/analysis/latest','/api/analysis/history','/api/analysis/report','/api/public-library','/api/public-library/detail','/api/products/reference']);
-const memberPost=new Set(['/api/analysis/start','/api/analysis/step','/api/analysis/control','/api/analysis/decision-profile']);
+const memberGet=new Set(['/api/products','/api/connection','/api/analysis/latest','/api/analysis/history','/api/analysis/report','/api/public-library','/api/public-library/detail','/api/products/reference','/api/research/status']);
+const memberPost=new Set(['/api/analysis/start','/api/analysis/step','/api/analysis/control','/api/analysis/decision-profile','/api/research/news','/api/research/ai']);
 function json(res,status,value){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(value))}
 async function body(req){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new AuthError('请求格式错误',415);let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>16000)throw new AuthError('请求过大',413)}try{return JSON.parse(text)}catch{throw new AuthError('请求格式错误')}}
-export function createApplication({directory,config=process.env,query=queryIFind,origin=null,clock=()=>Date.now()}={}){
+export function createApplication({directory,config=process.env,query=queryIFind,origin=null,clock=()=>Date.now(),researchOptions={}}={}){
  const scope=new AsyncLocalStorage();const auth=createAuth({directory,clock,secure:origin?.startsWith('https:'),maxDailyQueries:Number(config.USER_DAILY_QUERY_LIMIT)||240,maxTotalDailyQueries:Number(config.TOTAL_DAILY_QUERY_LIMIT)||240});
  const products=createProductService({folder:directory,config,defaults:false,hideOther:true,clock});
  const library=createPublicLibrary({folder:directory,clock});
  const market=createMarketData({directory,config,query,clock,consume:id=>{try{auth.consume(id)}catch(error){const blocked=new ConnectorError(error.message,error.status);blocked.beforeUpstream=true;blocked.quotaScope=error.quotaScope;throw blocked}}});
  const classified=createClassifiedService({directory,config,clock,owner:()=>scope.getStore()?.user.id,context:(code,category)=>products.analysisContext(code,category),defaultUnits:{rateUnit:config.IFIND_RATE_UNIT||'auto',allocationUnit:config.IFIND_ALLOCATION_UNIT||'auto',performanceUnit:config.IFIND_PERFORMANCE_UNIT||'auto'},query:async plan=>{const user=scope.getStore()?.user;if(!user)throw new ConnectorError('请先登录',401);return market.read(plan,user)}});
+ const research=createQualitativeService({...researchOptions,directory,config,clock,context:(code,category)=>products.analysisContext(code,category),report:id=>classified.get(id),consume:(kind,user)=>{try{auth.rateLimit('research:'+kind+':'+user.id,kind==='ai'?10:30,3600000);auth.rateLimit('research:'+kind+':site',kind==='ai'?100:300,3600000)}catch{throw new ConnectorError(kind==='ai'?'AI分析请求较频繁，请稍后再试':'新闻检索较频繁，请稍后再试',429)}}});
  function expectedOrigin(req){if(origin)return new URL(origin).origin;const host=new URL('http://'+req.headers.host);if(!['localhost','127.0.0.1','[::1]'].includes(host.hostname))throw new AuthError('访问地址无效',403);return host.origin}
  function validateRequest(req){const target=expectedOrigin(req);if(req.headers.host!==new URL(target).host)throw new AuthError('访问地址无效',403);if(req.headers['sec-fetch-site']==='cross-site')throw new AuthError('不允许跨站请求',403);if(req.method==='POST'&&req.headers.origin!==target)throw new AuthError('请从本站提交请求',403);if(req.headers.origin&&req.headers.origin!==target)throw new AuthError('不允许跨站请求',403)}
  function ip(req){if(config.TRUST_PROXY==='1'){const forwarded=String(req.headers['x-forwarded-for']||'').split(',').at(-1).trim();if(isIP(forwarded))return forwarded}return req.socket.remoteAddress||'unknown'}
- const api=createApiMiddleware(products,undefined,library,classified,req=>{const user=scope.getStore()?.user;if(!user)throw new ConnectorError('请先登录',401);const path=new URL(req.url,'http://internal').pathname;if(user.role!=='admin'&&!((req.method==='GET'&&memberGet.has(path))||(req.method==='POST'&&memberPost.has(path))))throw new ConnectorError('此功能仅供管理员使用',403);try{auth.rateLimit('api:'+user.id,150,60000);if(req.method==='POST'&&path==='/api/analysis/start'){auth.rateLimit('analysis-start:'+user.id,user.role==='admin'?100:20,3600000);if(!config.IFIND_REFRESH_TOKEN&&!config.IFIND_ACCESS_TOKEN)throw new ConnectorError('市场数据服务暂未开放，请稍后查询',503)}}catch(error){throw new ConnectorError(error.message,error.status)}});
+ const api=createApiMiddleware(products,undefined,library,classified,req=>{const user=scope.getStore()?.user;if(!user)throw new ConnectorError('请先登录',401);req.researchUser=user;const path=new URL(req.url,'http://internal').pathname;if(user.role!=='admin'&&!((req.method==='GET'&&memberGet.has(path))||(req.method==='POST'&&memberPost.has(path))))throw new ConnectorError('此功能仅供管理员使用',403);try{auth.rateLimit('api:'+user.id,150,60000);if(req.method==='POST'&&path==='/api/analysis/start'){auth.rateLimit('analysis-start:'+user.id,user.role==='admin'?100:20,3600000);if(!config.IFIND_REFRESH_TOKEN&&!config.IFIND_ACCESS_TOKEN)throw new ConnectorError('市场数据服务暂未开放，请稍后查询',503)}}catch(error){throw new ConnectorError(error.message,error.status)}},research);
  let stepQueue=Promise.resolve(),queued=0,nextStepAt=0;
  async function enqueueStep(req,user,res,next){if(queued>=64)throw new AuthError('当前查询较多，请稍后重试',429);queued++;const task=stepQueue.then(async()=>{const delay=nextStepAt-clock();if(delay>0)await new Promise(resolve=>setTimeout(resolve,delay));if(req.destroyed)return;try{return await scope.run({user},()=>api(req,res,next))}finally{nextStepAt=clock()+1100}});stepQueue=task.catch(()=>{});try{return await task}finally{queued--}}
  const ready=auth.bootstrap(config.ADMIN_USERNAME,config.ADMIN_PASSWORD);
@@ -32,5 +34,5 @@ export function createApplication({directory,config=process.env,query=queryIFind
   if(path==='/api/analysis/step'&&req.method==='POST')return await enqueueStep(req,user,res,next);
   return await scope.run({user},()=>api(req,res,next));
  }catch(error){json(res,error.status||500,{error:error instanceof AuthError||error instanceof ConnectorError?error.message:'服务暂不可用，请稍后重试'})}}
- return {handle,ready,products,classified,auth,close(){classified.close();market.close();products.close();library.close();auth.close()}};
+ return {handle,ready,products,classified,auth,close(){classified.close();research.close();market.close();products.close();library.close();auth.close()}};
 }

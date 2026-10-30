@@ -9,7 +9,7 @@ const envFile=fileURLToPath(new URL('../.env',import.meta.url));
 if(existsSync(envFile))process.loadEnvFile(envFile);
 function json(res,status,data){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(data))}
 async function body(req){let content='';for await(const chunk of req){content+=chunk;if(Buffer.byteLength(content)>2_000_000)throw new ConnectorError('请求过大',413)}try{return JSON.parse(content)}catch{throw new ConnectorError('请求必须是有效 JSON')}}
-export function createApiMiddleware(service=productService,indicators=indicatorService,publicData=publicLibrary,classified=classifiedService,authorize=null){return async function apiMiddleware(req,res,next){
+export function createApiMiddleware(service=productService,indicators=indicatorService,publicData=publicLibrary,classified=classifiedService,authorize=null,research=null){return async function apiMiddleware(req,res,next){
  if(!req.url?.startsWith('/api/'))return next();
  try{
   if(authorize)await authorize(req);
@@ -21,6 +21,7 @@ export function createApiMiddleware(service=productService,indicators=indicatorS
   }
   const origin=req.headers.origin;
   if(origin&&new URL(origin).host!==req.headers.host)throw new ConnectorError('不允许跨站请求',403);
+  if(research&&req.method==='GET'&&req.url==='/api/research/status')return json(res,200,research.status());
   if(req.method==='GET'&&req.url.startsWith('/api/analysis/latest?'))return json(res,200,classified.latest(new URL(req.url,'http://localhost').searchParams.get('code')));
   if(req.method==='GET'&&req.url==='/api/analysis/history')return json(res,200,classified.history());
   if(req.method==='GET'&&req.url.startsWith('/api/analysis/report?'))return json(res,200,classified.get(new URL(req.url,'http://localhost').searchParams.get('id')));
@@ -38,6 +39,8 @@ export function createApiMiddleware(service=productService,indicators=indicatorS
   if(req.method!=='POST')throw new ConnectorError('接口不存在或请求方法不支持',404);
   if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ConnectorError('只接受 application/json',415);
   const input=await body(req);
+  if(research&&req.url==='/api/research/news')return json(res,200,await research.news(input,req.researchUser));
+  if(research&&req.url==='/api/research/ai')return json(res,200,await research.analyze(input,req.researchUser));
   if(req.url==='/api/analysis/start')return json(res,200,await classified.start(input));
   if(req.url==='/api/analysis/step')return json(res,200,await classified.step(input));
   if(req.url==='/api/analysis/import-workbook')return json(res,200,await classified.importWorkbook(input));

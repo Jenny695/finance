@@ -9,10 +9,10 @@ export function publicOrigin(config=process.env){
  if(config.SPACE_HOST){const host=String(config.SPACE_HOST).trim().toLowerCase();if(host.length>253||!/^([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\.hf\.space$/.test(host))throw Error('SPACE_HOST需为Hugging Face提供的hf.space域名');return 'https://'+host}
  return null;
 }
-export async function startPublicServer({config=process.env,port=Number(config.PORT)||3000,host=config.BIND_HOST||'0.0.0.0',directory=config.DATA_DIR||resolve(root,'.public-data'),origin=publicOrigin(config),query}={}){
+export async function startPublicServer({config=process.env,port=Number(config.PORT)||3000,host=config.BIND_HOST||'0.0.0.0',directory=config.DATA_DIR||resolve(root,'.public-data'),origin=publicOrigin(config),query,researchOptions}={}){
  if(config.NODE_ENV==='production'&&(!origin||!origin.startsWith('https://')))throw Error('生产环境需设置HTTPS公开地址PUBLIC_URL');
  if(config.DROP_PRIVILEGES==='1'&&process.getuid?.()===0){await mkdir(directory,{recursive:true});await chown(directory,1000,1000);process.setgid(1000);process.setuid(1000)}
- const app=createApplication({directory,origin,config,query});await app.ready;const dist=resolve(root,'dist');
+ const app=createApplication({directory,origin,config,query,researchOptions});await app.ready;const dist=resolve(root,'dist');
  const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2','.json':'application/json; charset=utf-8','.csv':'text/csv; charset=utf-8'};
  const server=createServer(async(req,res)=>{res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','DENY');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");if(origin?.startsWith('https:'))res.setHeader('Strict-Transport-Security','max-age=15552000');
   if(req.url==='/healthz'){res.setHeader('Content-Type','application/json');res.end('{"status":"ok"}');return}

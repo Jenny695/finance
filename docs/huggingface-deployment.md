@@ -31,6 +31,8 @@
 | Variable | ADMIN_USERNAME | finance_admin |
 | Secret | ADMIN_PASSWORD | 自己设置并保管的至少12位密码 |
 | Secret | IFIND_REFRESH_TOKEN | 自己的有效Refresh Token；暂不接数据可以先不填 |
+| Secret（可选） | AI_API_KEY | DeepSeek API密钥，用于带引用的定性分析 |
+| Variable（可选） | AI_MODEL | deepseek-chat |
 | Variable（可选） | USER_DAILY_QUERY_LIMIT | 1000 |
 | Variable（可选） | TOTAL_DAILY_QUERY_LIMIT | 1000 |
 

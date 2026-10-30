@@ -4,6 +4,10 @@
 
 普通导航：**首页、产品查询、产品对比、投资知识、个人中心**。不提供演示持仓、虚构产品、风险等级筛选或无数据的“其他资管”选项。
 
+## 新闻与AI定性分析
+
+产品分析页支持公开新闻检索、有限正文读取与DeepSeek四维研究，逐条显示来源、日期和原文引文；新闻不改变历史量化分数。配置与使用见[新闻和AI接入说明](docs/news-and-ai.md)。密钥只保存在服务端；未配置AI时新闻功能仍可独立使用。
+
 ## 免费体验：Hugging Face Spaces
 
 已适配Docker Space的7860端口、非root运行和平台HTTPS地址。只需在Space根目录添加[部署Dockerfile](deploy/huggingface/Dockerfile)和[Space配置README](deploy/huggingface/README.md)，按[免费体验部署教程](docs/huggingface-deployment.md)设置秘密变量。免费实例可能休眠，重建可能清空账号和目录；此方案适合体验，不承诺数据持久保存。
