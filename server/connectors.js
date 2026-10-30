@@ -27,15 +27,24 @@ async function readLimited(response,max){let bytes=0;const chunks=[];for await(c
 async function officialFetch(url,options={}){
  try{return await proxyFetch(url,{...options,dispatcher:proxyDispatcher,redirect:'error',signal:AbortSignal.timeout(20000)})}catch{throw new ConnectorError('官方站点连接失败：请检查网络许可、代理和接口可用性',502)}
 }
+export function ifindFailure(data,{stage='query',httpStatus=null}={}){
+ const code=data?.errorcode,providerCode=(typeof code==='number'&&Number.isFinite(code))||typeof code==='string'&&/^-?\d{1,12}$/.test(code)?String(code):null;
+ // Classify provider text locally; never echo raw errmsg, tokens, account identifiers or response bodies.
+ const text=String(data?.errmsg||data?.message||'').toLowerCase();
+ const category=httpStatus===429||/额度|流量|用量|频率|频繁|quota|limit|exceed/.test(text)?'quota':stage==='authorization'||[401,403].includes(httpStatus)||/token|session|credential|令牌|登录|认证|授权|权限|permission|privilege|unauthori/.test(text)?'authorization':/参数|指标|字段|代码|日期|parameter|indicator|argument/.test(text)?'parameters':'query';
+ const label=category==='authorization'?'同花顺授权或数据权限未通过':category==='quota'?'同花顺接口额度或请求频率受限':category==='parameters'?'同花顺未接受产品、指标或日期参数':'同花顺查询未被接受';
+ const message=label+(providerCode?'（官方错误码 '+providerCode+'）':httpStatus?'（HTTP '+httpStatus+'）':'')+'；未自动重试。';
+ const error=new ConnectorError(message,502);error.providerFailure={category,providerCode,httpStatus,stage};return error;
+}
 export async function queryIFind(input,{fetcher=officialFetch,config=process.env}={}){
  validateQuery(input);let token=config.IFIND_ACCESS_TOKEN;
- if(!token&&config.IFIND_REFRESH_TOKEN){const response=await fetcher(IFIND_BASE+'get_access_token',{method:'POST',headers:{'Content-Type':'application/json',refresh_token:config.IFIND_REFRESH_TOKEN},body:'{}'});if(!response.ok)throw new ConnectorError('iFinD Token 获取失败，请核对官方 API 授权',502);let body;try{body=await response.json()}catch{throw new ConnectorError('iFinD Token 响应格式异常',502)}token=body?.data?.access_token;if(Number(body.errorcode)!==0||typeof token!=='string'||!token)throw new ConnectorError('iFinD API 授权未通过；客户端密码不等于 HTTP API Token',502)}
+ if(!token&&config.IFIND_REFRESH_TOKEN){const response=await fetcher(IFIND_BASE+'get_access_token',{method:'POST',headers:{'Content-Type':'application/json',refresh_token:config.IFIND_REFRESH_TOKEN},body:'{}'});if(!response.ok)throw ifindFailure(null,{stage:'authorization',httpStatus:response.status});let body;try{body=await response.json()}catch{throw new ConnectorError('iFinD Token 响应格式异常',502)}token=body?.data?.access_token;if(Number(body.errorcode)!==0||typeof token!=='string'||!token)throw ifindFailure(body,{stage:'authorization'})}
  if(!token)throw new ConnectorError('未配置 iFinD HTTP API Token。可先在客户端导出 CSV；网页登录账号密码不能代替接口授权',503);
  const url=IFIND_BASE+input.endpoint;
  const response=await fetcher(url,{method:'POST',headers:{'Content-Type':'application/json',access_token:token},body:JSON.stringify(input.payload)});
- if(!response.ok)throw new ConnectorError(`iFinD 查询返回 HTTP ${response.status}，请检查授权、额度或官方参数`,502);
+ if(!response.ok)throw ifindFailure(null,{httpStatus:response.status});
  const text=await readLimited(response,4_000_000);let data;try{data=JSON.parse(text)}catch{throw new ConnectorError('iFinD 未返回有效 JSON',502)}
- if(Number(data.errorcode)!==0)throw new ConnectorError('iFinD 查询失败，请在官方代码生成器核对权限、产品编码、指标及区间；未自动重试以避免消耗额度',502);
+ if(Number(data.errorcode)!==0)throw ifindFailure(data);
  return {data,source:{provider:'同花顺 iFinD HTTP API',url,title:`iFinD ${input.endpoint} 查询结果`,retrievedAt:new Date().toISOString()},verification:'API 返回成功；指标含义与授权展示范围仍需核对'};
 }
 const lastRead=new Map();

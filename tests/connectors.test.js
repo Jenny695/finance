@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {queryIFind,validateQuery,validatePublicURL,robotsAllowed,readDisclosure} from '../server/connectors.js';
+import {queryIFind,ifindFailure,validateQuery,validatePublicURL,robotsAllowed,readDisclosure} from '../server/connectors.js';
 const publicDNS=async()=>[{address:'8.8.8.8',family:4}];
 test('查询不接受任意端点、Token、密码或嵌套凭据',()=>{for(const input of [{endpoint:'login',payload:{}},{endpoint:'date_sequence',payload:{password:'secret'}},{endpoint:'date_sequence',payload:{p:{access_token:'secret'}}}])assert.throws(()=>validateQuery(input))});
 test('未配置授权时不发送网络请求',async()=>{let called=false;await assert.rejects(()=>queryIFind({endpoint:'date_sequence',payload:{}},{config:{},fetcher:async()=>{called=true}}),/未配置/);assert.equal(called,false)});
@@ -10,3 +10,15 @@ test('公开原文禁止内部地址、未许可域名和携带凭据的链接',
 test('robots 拒绝路径会停止抓取，空Disallow不拒绝',()=>{assert.equal(robotsAllowed('User-agent: *\nDisallow: /private','/private/a'),false);assert.equal(robotsAllowed('User-agent: *\nDisallow:','/public'),true);assert.equal(robotsAllowed('User-agent: Other\nDisallow: /\nUser-agent: *\nDisallow: /private','/public'),true);assert.equal(robotsAllowed('User-agent: *\nDisallow: /*.pdf$','/a.pdf'),false)});
 test('公开读取提取文本但状态仍为未核验，HTML脚本不会返回执行',async()=>{const fetcher=async url=>url.endsWith('robots.txt')?new Response('User-agent: *\nDisallow:'):new Response('<html><title>测试公告</title><script>alert(1)</script><p>产品净值1.02</p></html>',{headers:{'content-type':'text/html'}});const r=await readDisclosure('https://www.chinawealth.com.cn/test',{fetcher,resolve:publicDNS,config:{}});assert.equal(r.status,'retrieved-unverified');assert.equal(r.source.title,'测试公告');assert.ok(!r.text.includes('alert'));assert.ok(r.text.includes('产品净值'))});
 test('代理远端DNS仅对固定官方域名允许本机解析失败',async()=>{const resolve=async()=>{throw Error('no local DNS')};await assert.rejects(()=>validatePublicURL('https://www.chinawealth.com.cn/a',{resolve}));const u=await validatePublicURL('https://www.chinawealth.com.cn/a',{resolve,allowProxyDNS:true});assert.equal(u.hostname,'www.chinawealth.com.cn');await assert.rejects(()=>validatePublicURL('https://custom.example/a',{hosts:['custom.example'],resolve,allowProxyDNS:true}))});
+
+test('官方业务错误保存准确错误码和安全类别，不回显任何原始消息或凭据',async()=>{
+ for(const [errmsg,category]of [['权限不足 TOKEN_PRIVATE','authorization'],['流量用量超限 TOKEN_PRIVATE','quota'],['指标参数不支持 PRIVATE_SECRET','parameters'],['SENSITIVE_UNKNOWN','query']]){
+  const e=ifindFailure({errorcode:-1201,errmsg});assert.equal(e.providerFailure.providerCode,'-1201');assert.equal(e.providerFailure.category,category);assert.ok(e.message.includes('-1201'));assert.ok(!e.message.includes('TOKEN_PRIVATE'));assert.ok(!e.message.includes('PRIVATE_SECRET'));assert.ok(!e.message.includes('SENSITIVE_UNKNOWN'));
+ }
+ const malformed=ifindFailure({errorcode:'SECRET_NOT_A_CODE',errmsg:'secret'});assert.equal(malformed.providerFailure.providerCode,null);assert.ok(!malformed.message.includes('SECRET_NOT_A_CODE'));
+ await assert.rejects(()=>queryIFind({endpoint:'date_sequence',payload:{}},{config:{IFIND_ACCESS_TOKEN:'SYNTHETIC'},fetcher:async()=>Response.json({errorcode:-1201,errmsg:'指标参数不支持 SYNTHETIC'})}),e=>e.providerFailure.category==='parameters'&&e.message.includes('-1201')&&!e.message.includes('SYNTHETIC'));
+});
+test('官方HTTP拒绝与取Token业务错误也保留阶段，避免误诊为平台用户登录失效',async()=>{
+ await assert.rejects(()=>queryIFind({endpoint:'date_sequence',payload:{}},{config:{IFIND_ACCESS_TOKEN:'SYNTHETIC'},fetcher:async()=>new Response('private',{status:403})}),e=>e.status===502&&e.providerFailure.httpStatus===403&&e.providerFailure.category==='authorization');
+ await assert.rejects(()=>queryIFind({endpoint:'date_sequence',payload:{}},{config:{IFIND_REFRESH_TOKEN:'SYNTHETIC'},fetcher:async()=>Response.json({errorcode:-1001,errmsg:'invalid token SYNTHETIC'})}),e=>e.providerFailure.stage==='authorization'&&e.providerFailure.providerCode==='-1001'&&!e.message.includes('SYNTHETIC'));
+});

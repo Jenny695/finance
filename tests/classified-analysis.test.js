@@ -33,3 +33,7 @@ test('分类请求展示安全的网络或授权原因，不回显异常敏感�
   const {s}=await setup(t,{query:async()=>{throw new ConnectorError(message,502)}});const started=await s.start(input);const report=await s.step({id:started.id});assert.equal(report.lastFailure.code,expected);assert.ok(!JSON.stringify(report).includes('SENSITIVE_TEST'));assert.equal(report.queryCalls,1);assert.ok(report.progress.failed>0);
  }
 });
+
+test('分类页面保留同花顺原始错误码与固定安全说明，区别平台额度和官方额度',async t=>{
+ const {ifindFailure}=await import('../server/connectors.js');const {s}=await setup(t,{query:async()=>{throw ifindFailure({errorcode:-1201,errmsg:'流量超限 PRIVATE_SECRET'})}});const started=await s.start(input),r=await s.step({id:started.id});assert.equal(r.lastFailure.code,'ifind-quota');assert.equal(r.lastFailure.providerCode,'-1201');assert.ok(r.lastFailure.message.includes('同花顺'));assert.ok(!JSON.stringify(r).includes('PRIVATE_SECRET'));assert.ok(r.progress.failed>0);
+});
