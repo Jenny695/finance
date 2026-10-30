@@ -49,3 +49,9 @@ test('DeepSeek余额不足明确提示API余额，不能误报为用户登录失
  const x=await setup(t,{fetcher:async()=>new Response('sensitive response',{status:402})}),u={id:'a'},n=await x.s.news(input,u);
  await assert.rejects(()=>x.s.analyze({...input,newsId:n.id},u),e=>e.status===502&&e.message.includes('余额不足')&&!e.message.includes('sensitive'));
 });
+
+test('切换到正式搜索服务或更换搜索密钥立即失效旧新闻缓存，不继续显示之前网页检索失败',async t=>{
+ const x=await setup(t),u={id:'a'};await x.s.news(input,u);assert.equal(x.searches(),1);assert.equal((await x.s.news(input,u)).cached,true);
+ x.config.NEWS_SEARCH_API_KEY='SYNTHETIC_SEARCH_1';assert.equal((await x.s.news(input,u)).cached,false);assert.equal(x.searches(),2);
+ x.config.NEWS_SEARCH_API_KEY='SYNTHETIC_SEARCH_2';assert.equal((await x.s.news(input,u)).cached,false);assert.equal(x.searches(),3);
+});

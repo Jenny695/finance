@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseNewsRSS,parseEastmoneyNews,newsRelevance,newsLink,quantitativeEvidence,validateAIReport,aiEvidence} from '../lib/news-evidence.js';
+import {parseNewsRSS,parseEastmoneyNews,parseTavilyNews,newsRelevance,newsLink,quantitativeEvidence,validateAIReport,aiEvidence} from '../lib/news-evidence.js';
 import {createNewsCrawler} from '../server/news-crawler.js';
 const now=Date.parse('2026-10-30T03:00:00Z');
 const identity={code:'000001.OF',name:'测试成长混合A',issuer:'测试基金管理有限公司'};
@@ -54,4 +54,15 @@ test('RSS不可用时补充公开新闻JSONP检索；结果去重且仍遵守正
 test('失败新闻源保留安全的HTTP和格式诊断，不暴露原始异常或凭据',async()=>{
  const crawler=createNewsCrawler({clock:()=>now,fetcher:async url=>url.includes('bing.com')?new Response('secret',{status:403}):new Response('changed JSONP with PRIVATE_TEST_KEY')});
  const r=await crawler.search(identity);assert.equal(r.status,'unavailable');assert.ok(r.attempts.some(a=>a.httpStatus===403));assert.ok(r.attempts.some(a=>a.reason==='format'));assert.ok(!JSON.stringify(r).includes('PRIVATE_TEST_KEY'));
+});
+
+test('正式搜索API仅使用有发布时间的来源，不把搜索服务答案当新闻，密钥只用于请求头',async()=>{
+ const secret='SYNTHETIC_SEARCH_KEY_NOT_REAL';let calls=[];
+ const response={answer:'不应被作为新闻',results:[{title:'测试成长混合A季度报告',url:'https://finance.eastmoney.com/a/api.html',content:'测试成长混合A披露了报告内容。',raw_content:'测试成长混合A的季度报告披露了投资策略与资产配置情况。'.repeat(5),published_date:'2026-10-29T02:00:00Z'},{title:'无日期新闻',url:'https://example.com/missing',content:'测试成长混合A'},{title:'未来新闻',url:'https://example.com/future',published_date:'2027-01-01'}]};
+ const crawler=createNewsCrawler({clock:()=>now,config:{NEWS_SEARCH_PROVIDER:'tavily',NEWS_SEARCH_API_KEY:secret},fetcher:async(url,options)=>{calls.push({url,options});return new Response(JSON.stringify(response))}});
+ const r=await crawler.search(identity);assert.equal(calls.length,1);assert.equal(calls[0].url,'https://api.tavily.com/search');assert.equal(calls[0].options.headers.Authorization,'Bearer '+secret);assert.ok(!calls[0].options.body.includes(secret));assert.equal(JSON.parse(calls[0].options.body).topic,'news');assert.equal(r.status,'ready');assert.equal(r.items.length,1);assert.equal(r.items[0].contentLevel,'article_text');assert.equal(r.items[0].readStatus,'搜索服务提供的原文');assert.ok(!JSON.stringify(r).includes(secret));assert.ok(!JSON.stringify(r).includes(response.answer));
+});
+test('正式搜索API未配置、授权失败或额度不足时明确提示，不转发密钥或偷偷回退抓网页',async()=>{
+ let calls=0;const missing=createNewsCrawler({config:{NEWS_SEARCH_PROVIDER:'tavily'},fetcher:async()=>{calls++;throw Error('unexpected')}});const r=await missing.search(identity);assert.equal(calls,0);assert.equal(r.attempts[0].reason,'configuration');
+ for(const status of [401,403,429]){const crawler=createNewsCrawler({config:{NEWS_SEARCH_API_KEY:'SYNTHETIC_PRIVATE'},fetcher:async()=>{calls++;return new Response('SYNTHETIC_PRIVATE',{status})}});const result=await crawler.search(identity);assert.equal(result.status,'unavailable');assert.equal(result.attempts.length,1);assert.equal(result.attempts[0].httpStatus,status);assert.equal(result.attempts[0].reason,status===429?'quota':'authorization');assert.ok(!JSON.stringify(result).includes('SYNTHETIC_PRIVATE'))}
 });

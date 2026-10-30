@@ -1,7 +1,7 @@
 import {lookup} from 'node:dns/promises';
 import {EnvHttpProxyAgent,fetch as proxyFetch} from 'undici';
 import {validatePublicURL,robotsAllowed,ConnectorError} from './connectors.js';
-import {plainText,parseNewsRSS,parseEastmoneyNews,newsRelevance} from '../lib/news-evidence.js';
+import {plainText,parseNewsRSS,parseEastmoneyNews,parseTavilyNews,newsRelevance} from '../lib/news-evidence.js';
 const dispatcher=new EnvHttpProxyAgent();
 const hostLastRead=new Map();
 const ARTICLE_HOSTS=['finance.eastmoney.com','fund.eastmoney.com','finance.sina.com.cn','www.cs.com.cn','www.stcn.com','www.cnstock.com','www.jjckb.cn','www.chinaamc.com','www.efunds.com.cn','www.jsfund.cn','www.gffunds.com.cn','www.nffund.com'];
@@ -33,7 +33,20 @@ export function createNewsCrawler({config=process.env,fetcher=researchFetch,reso
    return text.length>=80?{contentLevel:'article_text',readStatus:'已读取公开正文',text}:{contentLevel:'feed_excerpt',readStatus:'正文不足，展示摘要',text:null};
   });hostQueues.set(parsed.hostname,task);try{return await task}catch{return {contentLevel:'feed_excerpt',readStatus:'正文读取未完成，展示摘要',text:null}}finally{if(hostQueues.get(parsed.hostname)===task)hostQueues.delete(parsed.hostname)}
  }
+ async function searchAPI(identity,{days=90}={}){
+  const provider='Tavily新闻搜索API';
+  if(!config.NEWS_SEARCH_API_KEY)return {items:[],attempts:[{provider,status:'unavailable',reason:'configuration',message:'尚未配置新闻搜索API密钥'}],status:'unavailable',days,searchedAt:new Date(clock()).toISOString()};
+  let phase='connect',httpStatus;try{
+   const kind=({fund:'基金',bank:'理财',broker:'资管',trust:'信托'})[identity.category]||'基金';
+   const response=await fetcher('https://api.tavily.com/search',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+config.NEWS_SEARCH_API_KEY},body:JSON.stringify({query:[identity.name,identity.issuer,kind,'新闻 公告'].filter(Boolean).join(' '),topic:'news',days,search_depth:'basic',max_results:8,include_raw_content:true,include_answer:false}),signal:AbortSignal.timeout(25000)});
+   if(!response.ok){httpStatus=response.status;throw Error('search API unavailable')}
+   phase='parse';const rows=parseTavilyNews(JSON.parse(await boundedText(response,2000000)),{now:clock(),days});
+   const items=rows.map(r=>({...r,scope:newsRelevance(r,identity)})).filter(r=>r.scope).slice(0,8).map((r,i)=>({...r,id:'N'+(i+1)}));
+   return {items,attempts:[{provider,status:'completed'}],status:items.length?'ready':'empty',days,searchedAt:new Date(clock()).toISOString(),scope:'授权新闻搜索API的有限检索；只使用有来源和有效发布时间的结果。'};
+  }catch(error){const failure=sourceFailure(error,phase,httpStatus);if([401,403].includes(httpStatus)){failure.reason='authorization';failure.message='新闻搜索API授权未通过，请检查该服务密钥与权限'}if([402,429,432].includes(httpStatus)){failure.reason='quota';failure.message='新闻搜索API额度不足或请求频率受限'}return {items:[],attempts:[{provider,status:'unavailable',...failure}],status:'unavailable',days,searchedAt:new Date(clock()).toISOString()}}
+ }
  async function search(identity,{days=90}={}){
+  if(config.NEWS_SEARCH_PROVIDER==='tavily'||config.NEWS_SEARCH_API_KEY)return searchAPI(identity,{days});
   const kind=({fund:'基金',bank:'理财',broker:'资管',trust:'信托'})[identity.category]||'基金';const terms=[`"${identity.name}" ${kind}`,...(identity.issuer?[`"${identity.issuer}" ${kind}`]:[])];const attempts=[],all=[];
   // RSS is a published subscription endpoint. Article HTML uses a separate, bounded robots-aware reader.
   await Promise.all(terms.map(async term=>{const url='https://www.bing.com/news/search?q='+encodeURIComponent(term)+'&format=rss&setlang=zh-Hans&cc=cn';let phase='connect',httpStatus;try{const r=await fetcher(url,{headers:{'User-Agent':'ZhihengResearch/1.0','Accept':'application/rss+xml,application/xml,text/xml'}});if(!r.ok){httpStatus=r.status;throw Error('feed unavailable')}phase='parse';const rows=parseNewsRSS(await boundedText(r,1000000),{now:clock(),days});all.push(...rows);attempts.push({provider:'Bing News RSS',status:'completed'})}catch(error){attempts.push({provider:'Bing News RSS',status:'unavailable',...sourceFailure(error,phase,httpStatus)})}}));
@@ -42,7 +55,7 @@ export function createNewsCrawler({config=process.env,fetcher=researchFetch,reso
    await Promise.all([identity.name,...(identity.issuer?[identity.issuer]:[])].map(async keyword=>{
     const params={uid:'',keyword,type:['cmsArticleWebOld'],client:'web',clientType:'web',clientVersion:'curr',param:{cmsArticleWebOld:{searchScope:'default',sort:'default',pageIndex:1,pageSize:10,preTag:'',postTag:''}}};
     const url='https://search-api-web.eastmoney.com/search/jsonp?cb=zhihengResearch&param='+encodeURIComponent(JSON.stringify(params));
-    let phase='connect',httpStatus;try{const r=await fetcher(url,{headers:{'User-Agent':'ZhihengResearch/1.0','Accept':'application/json,application/javascript'}});if(!r.ok){httpStatus=r.status;throw Error('news unavailable')}phase='parse';all.push(...parseEastmoneyNews(await boundedText(r,1000000),{now:clock(),days}));attempts.push({provider:'东方财富公开新闻检索',status:'completed'})}catch(error){attempts.push({provider:'东方财富公开新闻检索',status:'unavailable',...sourceFailure(error,phase,httpStatus)})}
+    let phase='connect',httpStatus;try{const r=await fetcher(url,{headers:{'User-Agent':'ZhihengResearch/1.0','Accept':'application/json,application/javascript,text/javascript,*/*;q=0.5'}});if(!r.ok){httpStatus=r.status;throw Error('news unavailable')}phase='parse';all.push(...parseEastmoneyNews(await boundedText(r,1000000),{now:clock(),days}));attempts.push({provider:'东方财富公开新闻检索',status:'completed'})}catch(error){attempts.push({provider:'东方财富公开新闻检索',status:'unavailable',...sourceFailure(error,phase,httpStatus)})}
    }));
   }
   const unique=[...new Map(all.map(r=>[r.url,r])).values()].map(r=>({...r,scope:newsRelevance(r,identity)})).filter(r=>r.scope).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,8);

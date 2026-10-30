@@ -30,7 +30,7 @@ export function createQualitativeService({directory,config=process.env,context,r
   return {code,category,name,issuer,nameSource:input.name?'本次填写':'产品目录'};
  }
  async function news(input,user){
-  const product=await identity(input),days=input.days||90,key=digest({version:2,product:{code:product.code,category:product.category,name:product.name,issuer:product.issuer},days});
+  const product=await identity(input),days=input.days||90,key=digest({version:3,provider:(config.NEWS_SEARCH_API_KEY||config.NEWS_SEARCH_PROVIDER==='tavily')?'tavily':'public',credential:digest(config.NEWS_SEARCH_API_KEY||''),product:{code:product.code,category:product.category,name:product.name,issuer:product.issuer},days});
   const saved=db.prepare('SELECT data FROM news_snapshots WHERE cache_key=? AND expires_at>? ORDER BY expires_at DESC LIMIT 1').get(key,clock());if(saved)return {...JSON.parse(saved.data),cached:true};
   if(pendingNews.has(key))return pendingNews.get(key);
   const task=(async()=>{consume('news',user);const result=await newsCrawler.search(product,{days}),id=randomUUID();const value={...result,id,product,cached:false};db.prepare('DELETE FROM news_snapshots WHERE expires_at<?').run(clock()-24*HOUR);db.prepare('INSERT INTO news_snapshots(id,cache_key,data,expires_at) VALUES(?,?,?,?)').run(id,key,JSON.stringify(value),clock()+(result.status==='ready'?HOUR:5*60000));return value})();pendingNews.set(key,task);try{return await task}finally{pendingNews.delete(key)}
