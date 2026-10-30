@@ -9,7 +9,7 @@ import {createPublicLibrary} from './public-library.js';
 import {createApiMiddleware} from './api.js';
 import {queryIFind,ConnectorError} from './connectors.js';
 const memberGet=new Set(['/api/products','/api/connection','/api/analysis/latest','/api/analysis/history','/api/analysis/report','/api/public-library','/api/public-library/detail','/api/products/reference','/api/research/status']);
-const memberPost=new Set(['/api/analysis/start','/api/analysis/step','/api/analysis/control','/api/analysis/decision-profile','/api/research/news','/api/research/ai']);
+const memberPost=new Set(['/api/analysis/start','/api/analysis/step','/api/analysis/control','/api/analysis/decision-profile','/api/research/news','/api/research/ai','/api/research/original']);
 function json(res,status,value){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.end(JSON.stringify(value))}
 async function body(req){if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new AuthError('请求格式错误',415);let text='';for await(const chunk of req){text+=chunk;if(Buffer.byteLength(text)>16000)throw new AuthError('请求过大',413)}try{return JSON.parse(text)}catch{throw new AuthError('请求格式错误')}}
 export function createApplication({directory,config=process.env,query=queryIFind,origin=null,clock=()=>Date.now(),researchOptions={}}={}){

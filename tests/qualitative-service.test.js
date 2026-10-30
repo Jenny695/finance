@@ -27,3 +27,25 @@ test('产品改名、偷用量化报告、伪造AI引用、未知参数不生成
  await assert.rejects(()=>x.s.news({...input,token:'untrusted'},u));
  const bad=result();bad.overview.citations[0].quote='不存在的论据与结论';const y=await setup(t,{fetcher:async()=>new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(bad)}}]}))}),yn=await y.s.news(input,u);await assert.rejects(()=>y.s.analyze({...input,newsId:yn.id},u),/引用或结构/);
 });
+test('占位机构不参与检索；补充原文可启用AI，原文只对所属账号可见',async t=>{
+ const x=await setup(t,{context:async()=>({product:{...product,issuer:'待核对'}})}),a={id:'a'},b={id:'b'};
+ const n=await x.s.news(input,a);assert.equal(n.product.issuer,'');
+ const text='测试成长混合在季度报告中介绍了投资策略和资产配置。'.repeat(8);
+ const original=await x.s.original({...input,title:'测试成长混合发布季度报告',url:'https://example.com/news',publishedAt:'2026-10-29',text},a);
+ assert.equal(original.items[0].contentLevel,'user_text');assert.equal(original.items[0].dateSource,'用户填写');assert.equal(original.items[0].scope,'product');
+ const ai=await x.s.analyze({...input,newsId:original.id},a);assert.equal(ai.analysis.dimensions.length,4);
+ await assert.rejects(()=>x.s.analyze({...input,newsId:original.id},b),e=>e.status===404);
+ const second=await x.s.original({...input,title:'测试成长混合另一份公告',url:'https://example.com/news2',publishedAt:'2026-10-29',text,newsId:original.id},a);assert.equal(second.items.length,2);assert.deepEqual(second.items.map(x=>x.id),['N1','N2']);
+ await assert.rejects(()=>x.s.original({...input,title:'测试成长混合公告',url:'https://example.com/n',publishedAt:'2026-09-31',text},a),/发布日期/);
+});
+test('补充链接读取失败明确要求正文，不伪造原文；内网地址不作为新闻链接',async t=>{
+ const x=await setup(t,{crawler:{search:async()=>({items:[],status:'unavailable'}),readArticle:async()=>({text:null})}}),u={id:'a'};
+ const original={...input,title:'测试成长混合公告',url:'https://example.com/news',publishedAt:'2026-10-29'};
+ await assert.rejects(()=>x.s.original(original,u),e=>e.status===422&&e.message.includes('粘贴正文'));
+ await assert.rejects(()=>x.s.original({...original,url:'https://127.0.0.1',text:'测试成长混合。'.repeat(40)},u),/HTTPS/);
+});
+
+test('DeepSeek余额不足明确提示API余额，不能误报为用户登录失效',async t=>{
+ const x=await setup(t,{fetcher:async()=>new Response('sensitive response',{status:402})}),u={id:'a'},n=await x.s.news(input,u);
+ await assert.rejects(()=>x.s.analyze({...input,newsId:n.id},u),e=>e.status===502&&e.message.includes('余额不足')&&!e.message.includes('sensitive'));
+});

@@ -51,3 +51,7 @@ test('RSS不可用时补充公开新闻JSONP检索；结果去重且仍遵守正
  const crawler=createNewsCrawler({clock:()=>now,resolve:async()=>[{address:'93.184.216.34'}],fetcher:async url=>url.includes('news/search')?new Response('',{status:503}):url.includes('search/jsonp')?new Response(json):new Response('User-agent: *\nDisallow: /')});
  const r=await crawler.search(identity);assert.equal(r.status,'ready');assert.equal(r.items.length,1);assert.equal(r.items[0].contentLevel,'feed_excerpt');assert.ok(r.attempts.some(a=>a.provider==='东方财富公开新闻检索'&&a.status==='completed'));
 });
+test('失败新闻源保留安全的HTTP和格式诊断，不暴露原始异常或凭据',async()=>{
+ const crawler=createNewsCrawler({clock:()=>now,fetcher:async url=>url.includes('bing.com')?new Response('secret',{status:403}):new Response('changed JSONP with PRIVATE_TEST_KEY')});
+ const r=await crawler.search(identity);assert.equal(r.status,'unavailable');assert.ok(r.attempts.some(a=>a.httpStatus===403));assert.ok(r.attempts.some(a=>a.reason==='format'));assert.ok(!JSON.stringify(r).includes('PRIVATE_TEST_KEY'));
+});

@@ -40,6 +40,7 @@ export function createApiMiddleware(service=productService,indicators=indicatorS
   if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']||''))throw new ConnectorError('只接受 application/json',415);
   const input=await body(req);
   if(research&&req.url==='/api/research/news')return json(res,200,await research.news(input,req.researchUser));
+  if(research&&req.url==='/api/research/original')return json(res,200,await research.original(input,req.researchUser));
   if(research&&req.url==='/api/research/ai')return json(res,200,await research.analyze(input,req.researchUser));
   if(req.url==='/api/analysis/start')return json(res,200,await classified.start(input));
   if(req.url==='/api/analysis/step')return json(res,200,await classified.step(input));
