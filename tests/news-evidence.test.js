@@ -66,3 +66,32 @@ test('正式搜索API未配置、授权失败或额度不足时明确提示，�
  let calls=0;const missing=createNewsCrawler({config:{NEWS_SEARCH_PROVIDER:'tavily'},fetcher:async()=>{calls++;throw Error('unexpected')}});const r=await missing.search(identity);assert.equal(calls,0);assert.equal(r.attempts[0].reason,'configuration');
  for(const status of [401,403,429]){const crawler=createNewsCrawler({config:{NEWS_SEARCH_API_KEY:'SYNTHETIC_PRIVATE'},fetcher:async()=>{calls++;return new Response('SYNTHETIC_PRIVATE',{status})}});const result=await crawler.search(identity);assert.equal(result.status,'unavailable');assert.equal(result.attempts.length,1);assert.equal(result.attempts[0].httpStatus,status);assert.equal(result.attempts[0].reason,status===429?'quota':'authorization');assert.ok(!JSON.stringify(result).includes('SYNTHETIC_PRIVATE'))}
 });
+
+test('新闻库只返回无关行业报道时补充基金网页，未注明日期的资料不冒充近期新闻',async()=>{
+ const calls=[];
+ const fund={code:'000003.OF',category:'fund',name:'中海可转债债券A',issuer:''};
+ const crawler=createNewsCrawler({clock:()=>now,config:{NEWS_SEARCH_API_KEY:'SYNTHETIC'},fetcher:async(url,options)=>{
+  const q=JSON.parse(options.body);calls.push(q);
+  return new Response(JSON.stringify({results:q.topic==='news'?[{title:'财富周刊：黄金突破，首批10只科创债基金获批',content:'中海基金等公司获批。',published_date:'2026-10-29',url:'https://example.com/unrelated'}]:[{title:'中海可转债债券型证券投资基金季度报告',content:'中海可转债债券基金投资范围与风险说明。',url:'https://example.com/fund-report'}]}));
+ }});
+ const value=await crawler.search(fund);
+ assert.equal(calls.length,2);assert.equal(calls[1].topic,'general');assert.ok(calls[1].query.includes('中海可转债债券'));assert.equal(value.items.length,1);assert.equal(value.items[0].url,'https://example.com/fund-report');assert.equal(value.items[0].publishedAt,null);assert.equal(value.items[0].recency,'unverified');assert.equal(value.attempts[0].matchedResults,0);assert.equal(value.attempts[1].matchedResults,1);
+ const evidence=aiEvidence(value,null);assert.equal(evidence[0].recency,'unverified');assert.equal(evidence[0].dateSource,'未提供日期');
+});
+
+test('网页补充不接受已过期、未来、错误日期或无关产品，不将网页检索答案作为证据',()=>{
+ const rows=[{title:'基金网页',url:'https://example.com/a'},...['2020-01-01','2028-01-01','bad-date'].map((published_date,i)=>({title:'基金网页',url:'https://example.com/'+i,published_date}))];
+ assert.equal(parseTavilyNews({results:rows},{now}).length,0);
+ const parsed=parseTavilyNews({answer:'model generated answer',results:rows},{now,allowUndated:true});assert.equal(parsed.length,1);assert.equal(parsed[0].publishedAt,null);assert.ok(!JSON.stringify(parsed).includes('model generated answer'));
+});
+
+test('补充网页查询失败仍保留第一次新闻查询诊断，不暴露密钥',async()=>{
+ let calls=0;const crawler=createNewsCrawler({clock:()=>now,config:{NEWS_SEARCH_API_KEY:'SYNTHETIC_PRIVATE'},fetcher:async()=>++calls===1?new Response(JSON.stringify({results:[]})):new Response('SYNTHETIC_PRIVATE',{status:429})});
+ const result=await crawler.search(identity);assert.equal(result.attempts.length,2);assert.equal(result.attempts[0].status,'completed');assert.equal(result.attempts[1].httpStatus,429);assert.ok(!JSON.stringify(result).includes('SYNTHETIC_PRIVATE'));
+});
+
+test('无日期网页可解释背景，但不能生成近期事件维度结论',()=>{
+ const value=answer();value.dimensions.find(d=>d.id==='events').signal='watch';
+ const evidence=aiEvidence({items:news.items.map(x=>({...x,dateSource:'未提供日期',recency:'unverified'}))},null);
+ const result=validateAIReport(value,evidence);assert.equal(result.dimensions.find(d=>d.id==='events').signal,'insufficient');
+});

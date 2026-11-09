@@ -38,11 +38,24 @@ export function createNewsCrawler({config=process.env,fetcher=researchFetch,reso
   if(!config.NEWS_SEARCH_API_KEY)return {items:[],attempts:[{provider,status:'unavailable',reason:'configuration',message:'尚未配置新闻搜索API密钥'}],status:'unavailable',days,searchedAt:new Date(clock()).toISOString()};
   let phase='connect',httpStatus;try{
    const kind=({fund:'基金',bank:'理财',broker:'资管',trust:'信托'})[identity.category]||'基金';
-   const response=await fetcher('https://api.tavily.com/search',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+config.NEWS_SEARCH_API_KEY},body:JSON.stringify({query:[identity.name,identity.issuer,kind,'新闻 公告'].filter(Boolean).join(' '),topic:'news',days,search_depth:'basic',max_results:8,include_raw_content:true,include_answer:false}),signal:AbortSignal.timeout(25000)});
-   if(!response.ok){httpStatus=response.status;throw Error('search API unavailable')}
-   phase='parse';const rows=parseTavilyNews(JSON.parse(await boundedText(response,2000000)),{now:clock(),days});
-   const items=rows.map(r=>({...r,scope:newsRelevance(r,identity)})).filter(r=>r.scope).slice(0,8).map((r,i)=>({...r,id:'N'+(i+1)}));
-   return {items,attempts:[{provider,status:'completed'}],status:items.length?'ready':'empty',days,searchedAt:new Date(clock()).toISOString(),scope:'授权新闻搜索API的有限检索；只使用有来源和有效发布时间的结果。'};
+   const attempts=[];
+   async function query(topic,queryText){
+    phase='connect';httpStatus=undefined;
+    const response=await fetcher('https://api.tavily.com/search',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+config.NEWS_SEARCH_API_KEY},body:JSON.stringify({query:queryText,topic,...(topic==='news'?{days}:{}),search_depth:'basic',max_results:8,include_raw_content:true,include_answer:false}),signal:AbortSignal.timeout(25000)});
+    if(!response.ok){httpStatus=response.status;throw Error('search API unavailable')}
+    phase='parse';const data=JSON.parse(await boundedText(response,2000000)),rows=parseTavilyNews(data,{now:clock(),days,allowUndated:topic==='general'});
+    const matching=rows.map(r=>({...r,scope:newsRelevance(r,identity)})).filter(r=>r.scope);
+    attempts.push({provider:topic==='news'?provider:'Tavily网页搜索API',status:'completed',returnedResults:data.results.length,validResults:rows.length,matchedResults:matching.length,message:`返回${data.results.length}条，符合日期条件${rows.length}条，相关${matching.length}条`});
+    return matching;
+   }
+   const rows=await query('news',[identity.name,identity.issuer,kind,'新闻 公告'].filter(Boolean).join(' '));
+   if(!rows.some(r=>r.scope==='product')){
+    // A fund may have official pages/reports without appearing in a general news index.
+    const family=identity.name.replace(/[A-Za-z]$/,'');
+    try{rows.push(...await query('general',JSON.stringify(family)+' '+kind+' 公告 定期报告'))}catch(error){attempts.push({provider:'Tavily网页搜索API',status:'unavailable',...sourceFailure(error,phase,httpStatus)})}
+   }
+   const items=[...new Map(rows.map(r=>[r.url,r])).values()].slice(0,8).map((r,i)=>({...r,id:'N'+(i+1)}));
+   return {items,attempts,status:items.length?'ready':'empty',days,searchedAt:new Date(clock()).toISOString(),scope:'新闻检索与网页补充检索；无发布日期的网页仅供背景参考，不视为近期报道。'};
   }catch(error){const failure=sourceFailure(error,phase,httpStatus);if([401,403].includes(httpStatus)){failure.reason='authorization';failure.message='新闻搜索API授权未通过，请检查该服务密钥与权限'}if([402,429,432].includes(httpStatus)){failure.reason='quota';failure.message='新闻搜索API额度不足或请求频率受限'}return {items:[],attempts:[{provider,status:'unavailable',...failure}],status:'unavailable',days,searchedAt:new Date(clock()).toISOString()}}
  }
  async function search(identity,{days=90}={}){
