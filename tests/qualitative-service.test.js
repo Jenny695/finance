@@ -74,5 +74,21 @@ test('一键AI没有新闻也没有量化数据时说明下一步，不调用模
 });
 
 test('一键AI返回检索到的证据供页面展示来源，不必事先点击检索',async t=>{
- const x=await setup(t);const value=await x.s.analyze(input,{id:'a'});assert.equal(x.searches(),1);assert.equal(value.basis,'news-and-data');assert.equal(value.newsSnapshot.items[0].id,'N1');
+ const x=await setup(t);const value=await x.s.analyze(input,{id:'a'});assert.equal(x.searches(),1);assert.equal(value.basis,'news-only');assert.equal(value.newsSnapshot.items[0].id,'N1');
+});
+
+test('默认检索近三年，同时有新闻和量化结果时向模型提供两类证据与联合分析要求',async t=>{
+ let searchDays,modelInput;
+ const quant={code:product.code,category:'fund',start:'2025-10-29',end:'2026-10-29',progress:{valid:14},evaluation:{summary:{score:65},assessment:{dimensions:[]},metrics:{periodReturn:0.1,maxDrawdown:0.08},metricScores:[{name:'固定年费合计',value:0.012,display:'percent'}]}};
+ const x=await setup(t,{report:()=>quant,crawler:{search:async(p,{days})=>{searchDays=days;return {items,status:'ready',days}}},fetcher:async(url,options)=>{modelInput=JSON.parse(options.body);return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(result())}}]}));}});
+ const value=await x.s.analyze({code:product.code,category:'fund',analysisId:'own-report'},{id:'a'});
+ assert.equal(searchDays,1095);assert.equal(value.newsSnapshot.days,1095);assert.equal(value.basis,'news-and-data');assert.deepEqual(value.evidence.map(x=>x.id),['N1','Q1']);assert.match(modelInput.messages[0].content,/概述同时引用新闻和Q1/);assert.match(modelInput.messages[0].content,/旧报道/);
+ const q=JSON.parse(value.evidence.find(x=>x.id==='Q1').text);assert.equal(q.最大回撤,0.08);assert.equal(q.可用指标[0].数值,0.012);assert.match(q.单位说明,/0.01为1%/);
+});
+
+test('三年内用户补充原文可用，超过三年的原文拒绝，非法检索范围不调用搜索',async t=>{
+ const x=await setup(t),u={id:'a'},original={code:product.code,category:'fund',days:1095,title:'测试成长混合发布季度报告',url:'https://example.com/older',publishedAt:'2024-10-01',text:'测试成长混合在季度报告中介绍投资策略与资产配置。'.repeat(8)};
+ const saved=await x.s.original(original,u);assert.equal(saved.days,1095);
+ await assert.rejects(()=>x.s.original({...original,publishedAt:'2022-10-01'},u),/发布日期/);
+ await assert.rejects(()=>x.s.news({...input,days:99999},u),/检索区间/);assert.equal(x.searches(),0);
 });

@@ -95,3 +95,10 @@ test('无日期网页可解释背景，但不能生成近期事件维度结论',
  const evidence=aiEvidence({items:news.items.map(x=>({...x,dateSource:'未提供日期',recency:'unverified'}))},null);
  const result=validateAIReport(value,evidence);assert.equal(result.dimensions.find(d=>d.id==='events').signal,'insufficient');
 });
+
+test('近三年检索接受两年前报道，排除超过三年的报道，向搜索API传递三年范围',async()=>{
+ const response={results:[{title:'测试成长混合A季度报告',url:'https://example.com/within',published_date:'2024-10-29'},{title:'测试成长混合A历史报告',url:'https://example.com/old',published_date:'2022-10-29'}]};
+ let request;
+ const crawler=createNewsCrawler({clock:()=>now,config:{NEWS_SEARCH_API_KEY:'SYNTHETIC'},fetcher:async(url,options)=>{request=JSON.parse(options.body);return new Response(JSON.stringify(response));}});
+ const value=await crawler.search(identity);assert.equal(request.days,1095);assert.equal(value.days,1095);assert.equal(value.items.length,1);assert.equal(value.items[0].url,'https://example.com/within');
+});

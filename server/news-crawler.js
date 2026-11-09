@@ -33,7 +33,7 @@ export function createNewsCrawler({config=process.env,fetcher=researchFetch,reso
    return text.length>=80?{contentLevel:'article_text',readStatus:'已读取公开正文',text}:{contentLevel:'feed_excerpt',readStatus:'正文不足，展示摘要',text:null};
   });hostQueues.set(parsed.hostname,task);try{return await task}catch{return {contentLevel:'feed_excerpt',readStatus:'正文读取未完成，展示摘要',text:null}}finally{if(hostQueues.get(parsed.hostname)===task)hostQueues.delete(parsed.hostname)}
  }
- async function searchAPI(identity,{days=90}={}){
+ async function searchAPI(identity,{days=1095}={}){
   const provider='Tavily新闻搜索API';
   if(!config.NEWS_SEARCH_API_KEY)return {items:[],attempts:[{provider,status:'unavailable',reason:'configuration',message:'尚未配置新闻搜索API密钥'}],status:'unavailable',days,searchedAt:new Date(clock()).toISOString()};
   let phase='connect',httpStatus;try{
@@ -58,7 +58,7 @@ export function createNewsCrawler({config=process.env,fetcher=researchFetch,reso
    return {items,attempts,status:items.length?'ready':'empty',days,searchedAt:new Date(clock()).toISOString(),scope:'新闻检索与网页补充检索；无发布日期的网页仅供背景参考，不视为近期报道。'};
   }catch(error){const failure=sourceFailure(error,phase,httpStatus);if([401,403].includes(httpStatus)){failure.reason='authorization';failure.message='新闻搜索API授权未通过，请检查该服务密钥与权限'}if([402,429,432].includes(httpStatus)){failure.reason='quota';failure.message='新闻搜索API额度不足或请求频率受限'}return {items:[],attempts:[{provider,status:'unavailable',...failure}],status:'unavailable',days,searchedAt:new Date(clock()).toISOString()}}
  }
- async function search(identity,{days=90}={}){
+ async function search(identity,{days=1095}={}){
   if(config.NEWS_SEARCH_PROVIDER==='tavily'||config.NEWS_SEARCH_API_KEY)return searchAPI(identity,{days});
   const kind=({fund:'基金',bank:'理财',broker:'资管',trust:'信托'})[identity.category]||'基金';const terms=[`"${identity.name}" ${kind}`,...(identity.issuer?[`"${identity.issuer}" ${kind}`]:[])];const attempts=[],all=[];
   // RSS is a published subscription endpoint. Article HTML uses a separate, bounded robots-aware reader.
