@@ -53,23 +53,22 @@ export function createQualitativeService({directory,config=process.env,context,r
  }
  async function analyze(input,user){
   const settings=aiSettings(config);if(!settings.key)throw new ConnectorError('AI分析暂未开放，请联系管理员配置DeepSeek服务',503);
-  const product=await identity(input);if(typeof input.newsId!=='string'||input.newsId.length>80)throw new ConnectorError('请先检索本产品相关新闻');
+  const product=await identity(input);if(input.newsId===undefined){const found=await news(input,user);input={...input,newsId:found.id}}if(typeof input.newsId!=='string'||input.newsId.length>80)throw new ConnectorError('新闻资料标识无效');
   const row=db.prepare('SELECT data,expires_at,owner FROM news_snapshots WHERE id=?').get(input.newsId);if(!row||row.owner&&row.owner!==user.id)throw new ConnectorError('资料不存在或不属于当前账号',404);
   if(row.expires_at<=clock())throw new ConnectorError('新闻资料已过期，请重新检索后再分析',409);
   const snapshot=JSON.parse(row.data);if(snapshot.product.code!==product.code||snapshot.product.category!==product.category||snapshot.product.name!==product.name||snapshot.product.issuer!==product.issuer)throw new ConnectorError('产品信息已变化，请重新检索相关新闻',409);
-  if(!snapshot.items.length)throw new ConnectorError('当前没有可引用的相关新闻，暂不生成AI结论',422);
   if(input.analysisId!==undefined&&(typeof input.analysisId!=='string'||input.analysisId.length>80))throw new ConnectorError('量化报告标识无效');
   let quant=null;if(input.analysisId){const analysis=report(input.analysisId);if(analysis.code!==product.code||analysis.category!==product.category)throw new ConnectorError('量化报告与当前产品不一致');quant=quantitativeEvidence(analysis)}
-  const evidence=aiEvidence(snapshot,quant),owner=user.id,key=digest({product,news:snapshot.id,quant,model:settings.model,endpoint:settings.url,credential:digest(settings.key),version:2});
+  const evidence=aiEvidence(snapshot,quant);if(!evidence.length)throw new ConnectorError('暂无可分析的资料：请先完成上方量化分析，或补充新闻原文后生成解读',422);const basis=snapshot.items.length?'news-and-data':'quantitative-only',owner=user.id,key=digest({product,news:snapshot.id,quant,model:settings.model,endpoint:settings.url,credential:digest(settings.key),version:3});
   const cached=db.prepare('SELECT data FROM ai_briefs WHERE cache_key=? AND owner=? AND expires_at>?').get(key,owner,clock());if(cached)return {...JSON.parse(cached.data),cached:true};
   const pendingKey=digest({owner,key});if(pendingAI.has(pendingKey))return pendingAI.get(pendingKey);
   const task=(async()=>{
    consume('ai',user);let response;
-   try{response=await fetcher(settings.url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+settings.key},body:JSON.stringify({model:settings.model,temperature:0.2,max_tokens:2400,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM},{role:'user',content:JSON.stringify({日期:new Date(clock()).toISOString(),产品:product,维度:QUALITATIVE_DIMENSIONS,证据:evidence})}]}),signal:AbortSignal.timeout(60000)})}catch{throw new ConnectorError('AI服务连接未完成，请稍后重试',502)}
+   try{response=await fetcher(settings.url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+settings.key},body:JSON.stringify({model:settings.model,temperature:0.2,max_tokens:2400,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM+(basis==='quantitative-only'?'本次没有可用新闻，未完成联网事实核验。仅解读Q1中的实际量化指标，overview和利弊须引用Q1；不得断言产品策略、基金经理变动、持仓或近期事件。四个新闻定性维度必须全部为insufficient。明确说明此解读基于量化结果，未纳入近期新闻。':'')},{role:'user',content:JSON.stringify({日期:new Date(clock()).toISOString(),产品:product,维度:QUALITATIVE_DIMENSIONS,证据:evidence})}]}),signal:AbortSignal.timeout(60000)})}catch{throw new ConnectorError('AI服务连接未完成，请稍后重试',502)}
    if(!response.ok)throw new ConnectorError([401,403].includes(response.status)?'DeepSeek授权未通过，请管理员核对AI密钥与服务权限':response.status===402?'DeepSeek API余额不足，请管理员检查开放平台余额':response.status===404?'AI模型或接口地址不可用，请管理员检查配置':response.status===429?'AI服务请求较多或额度不足，请稍后再试':'AI服务暂未完成分析，请稍后重试',502);
    let parsed,body;try{body=JSON.parse(await boundedText(response,200000));const choice=body.choices?.[0];if(choice?.finish_reason==='length')throw Error('truncated');parsed=JSON.parse(choice?.message?.content||'')}catch{throw new ConnectorError('AI未返回完整的结构化分析，本次未展示结论',502)}
    let analysis;try{analysis=validateAIReport(parsed,evidence)}catch{throw new ConnectorError('AI结论的引用或结构未通过检查，本次未展示结论，可稍后重试',502)}
-   const value={id:randomUUID(),product,newsId:snapshot.id,analysis,evidence,model:settings.model,generatedAt:new Date(clock()).toISOString(),cached:false};
+   const value={id:randomUUID(),product,newsId:snapshot.id,analysis,evidence,basis,newsSnapshot:snapshot,newsStatus:snapshot.status,model:settings.model,generatedAt:new Date(clock()).toISOString(),cached:false};
    db.prepare('DELETE FROM ai_briefs WHERE expires_at<?').run(clock());db.prepare('INSERT OR REPLACE INTO ai_briefs VALUES(?,?,?,?)').run(key,owner,JSON.stringify(value),clock()+HOUR);return value;
   })();pendingAI.set(pendingKey,task);try{return await task}finally{pendingAI.delete(pendingKey)}
  }

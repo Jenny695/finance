@@ -55,3 +55,24 @@ test('切换到正式搜索服务或更换搜索密钥立即失效旧新闻缓�
  x.config.NEWS_SEARCH_API_KEY='SYNTHETIC_SEARCH_1';assert.equal((await x.s.news(input,u)).cached,false);assert.equal(x.searches(),2);
  x.config.NEWS_SEARCH_API_KEY='SYNTHETIC_SEARCH_2';assert.equal((await x.s.news(input,u)).cached,false);assert.equal(x.searches(),3);
 });
+
+test('一键AI自动检索，新闻不可用时只解读本账号量化摘要，不编造近期事件',async t=>{
+ const quant={code:product.code,category:'fund',start:'2025-10-29',end:'2026-10-29',progress:{valid:14},evaluation:{summary:{score:65},assessment:{dimensions:[]},metrics:{periodReturn:0.1}}};
+ let sent;
+ const x=await setup(t,{report:()=>quant,crawler:{search:async()=>({items:[],status:'unavailable',days:90})},fetcher:async(url,options)=>{sent=JSON.parse(options.body);const claim={text:'分析基于本次量化结果。',citations:[{id:'Q1',quote:'本次量化分析摘要'}]};
+ // Quotes must come from the actual evidence text, not its title.
+ claim.citations[0].quote='有效指标';
+ const value={overview:claim,dimensions:['strategy','management','disclosure','events'].map(id=>({id,signal:'insufficient',text:'资料不足',citations:[]})),positives:[],risks:[claim]};
+ return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(value)}}]}));}});
+ const value=await x.s.analyze({...input,analysisId:'own-report'},{id:'a'});
+ assert.equal(value.basis,'quantitative-only');assert.equal(value.newsSnapshot.items.length,0);assert.equal(value.evidence.length,1);assert.equal(value.evidence[0].id,'Q1');assert.ok(value.analysis.dimensions.every(d=>d.signal==='insufficient'));assert.match(sent.messages[0].content,/未完成联网事实核验/);
+});
+
+test('一键AI没有新闻也没有量化数据时说明下一步，不调用模型',async t=>{
+ const x=await setup(t,{crawler:{search:async()=>({items:[],status:'unavailable'})}});
+ await assert.rejects(()=>x.s.analyze(input,{id:'a'}),e=>e.status===422&&e.message.includes('先完成上方量化分析'));assert.equal(x.models(),0);
+});
+
+test('一键AI返回检索到的证据供页面展示来源，不必事先点击检索',async t=>{
+ const x=await setup(t);const value=await x.s.analyze(input,{id:'a'});assert.equal(x.searches(),1);assert.equal(value.basis,'news-and-data');assert.equal(value.newsSnapshot.items[0].id,'N1');
+});
